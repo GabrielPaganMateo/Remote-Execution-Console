@@ -49,16 +49,15 @@ downloadPasswordConnectionTool() {
 # }
 
 sshConnectAndExecute() {
-    echo "Connecting..."
-    test -z "$1" && connection_output=$(ssh $REMOTEUSER@$REMOTEHOST 'echo SHH')
-    # SSH PASSWORD WILL NOT WORK IN WINDOWS, ONLY LINUX LIBRARIES CAN BE INSTALLED FOR THAT BUT INCOMPATIBLE WITH WINDOWS. 
-    # MAYBE I CAN USE plink.exe work around, but that is a PUTTY command , the script would be incompatible for LINUX. I would have make the script identify the runtime environment, whether it is LINUX or WINDOWS,
-    # then install the required libraries/tools and continue with script execution.
-    # use the ideas from the following script downloadPuttyToolAndExecuteRemoteCommand.sh
-    #test -n "$1" && connection_output=$(sshpass -p "$1" ssh $REMOTEUSER@$REMOTEHOST 'echo SSHPASS')
-    test -n "$1" && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "echo PLINK")
-    echo "$1"
-    echo "$connection_output"
+    log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
+    log "Executing : $1"
+    echo
+
+    test -n "$1" && [ ! -f "$1" ] && connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "$1")
+    test -n "$1" && [ -f "$1" ] && connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1")
+
+    echo
+    log "Output > $connection_output"
 }
 
 passwordConnectAndExecute() {
@@ -66,16 +65,21 @@ passwordConnectAndExecute() {
     log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
     log "Executing : $2"
     log "Please follow any connection tool instructions..."
-    echo -e "/n"
-    test -n "$1" && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2")
-    # removeTemporaryTools
+    echo
+
+    test -n "$1" && [ ! -f "$2" ] && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2")
+    test -n "$1" && [ -f "$2" ] && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2")
+    
+    echo
+    log "Output > $connection_output"
 }
 
 isPasswordBasedOrSSH() {
     SSH=$(askForInput "Do you have SSH key pair configured in remote server ? (y/n)")
     case $SSH in
         y|Y)
-            sshConnectAndExecute
+            CMD=$(askForInput "Input the desired command or path to script : ")
+            sshConnectAndExecute "$CMD"
             ;;
         n|N)
             PWD=$(askForInput "Please provide password : ")

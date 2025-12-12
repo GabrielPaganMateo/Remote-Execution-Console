@@ -1,5 +1,8 @@
 #!/bin/sh
 
+DIR=$(dirname $0)
+cd "$DIR"
+
 source ./RemoteLibrary.sh
 
 OPTIONS="h"
