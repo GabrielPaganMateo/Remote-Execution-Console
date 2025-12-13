@@ -16,6 +16,19 @@ askForCredentials() {
     REMOTEUSER=$(askForInput "Who is the user ?")
 }
 
+# USE FOR CMD validation before executing SSH 
+# if has unmatched quotes then retry command input and log with recommendations
+# Maybe one of the following two logs
+# :: please be cautious when inputting commands, as best practice copy/paste the entire command at once
+# :: please be cautious when inputting commands with quotes, as best practice copy/paste the entire command at once
+# has_unmatched_quotes() {
+#     local s="$1"
+#     local dq=${s//[^"]/}
+#     local sq=${s//[^']/}
+
+#     (( ${#dq} % 2 != 0 || ${#sq} % 2 != 0 ))
+# }
+
 TOOL_DIR="./plink.tool"
 
 downloadPasswordConnectionTool() {
@@ -57,34 +70,33 @@ sshConnectAndExecute() {
     test -n "$1" && [ -f "$1" ] && connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1")
 
     echo
-    log "Output > $connection_output"
+    test -n "$connection_output" && log "Output > $connection_output"
 }
 
 passwordConnectAndExecute() {
     downloadPasswordConnectionTool
     log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
     log "Executing : $2"
-    log "Please follow any connection tool instructions..."
     echo
 
     test -n "$1" && [ ! -f "$2" ] && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2")
     test -n "$1" && [ -f "$2" ] && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2")
     
     echo
-    log "Output > $connection_output"
+    test -n "$connection_output" && log "Output > $connection_output"
 }
 
 isPasswordBasedOrSSH() {
     SSH=$(askForInput "Do you have SSH key pair configured in remote server ? (y/n)")
     case $SSH in
         y|Y)
-            CMD=$(askForInput "Input the desired command or path to script : ")
-            sshConnectAndExecute "$CMD"
+            #CMD=$(askForInput "Input the desired command or path to script : ")
+            # sshConnectAndExecute "$CMD"
             ;;
         n|N)
-            PWD=$(askForInput "Please provide password : ")
-            CMD=$(askForInput "Input the desired command or path to script : ")
-            passwordConnectAndExecute "$PWD" "$CMD"
+            PASS=$(askForInput "Please provide password : ")
+            #CMD=$(askForInput "Input the desired command or path to script : ")
+            # passwordConnectAndExecute "$PWD" "$CMD"
             ;;
         *) 
             errorLog "Please answer with y (yes) or n (no)"
@@ -93,12 +105,15 @@ isPasswordBasedOrSSH() {
     esac
 }
 
-askForOneTimeConnection() {
-    ONCE=$(askForInput "Would you like to establish a one time connection? (y/n)")
+askForOneTimeCommand() {
+    ONCE=$(askForInput "Would you like to execute a one time command? (y/n)")
     case $ONCE in
         y|Y) 
             askForCredentials
             isPasswordBasedOrSSH
+            CMD=$(askForInput "Input the desired command or path to script : ")
+            test -z "$PASS" && sshConnectAndExecute "$CMD"
+            test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
             ;;
         n|N) 
             log "Goodbye."
@@ -106,19 +121,23 @@ askForOneTimeConnection() {
             ;;
         *) 
             errorLog "Please answer with y (yes) or n (no)"
-            askForOneTimeConnection
+            askForOneTimeCommand
             ;;
     esac
+}
+
+createRemoteConfiguration() {
+    exit 0
 }
 
 createConfigurationOrEstablishConnection() {
     CREATE=$(askForInput "Would you like to create it? (y/n)")
     case $CREATE in
         y|Y) 
-            exit 0
+            createRemoteConfiguration
             ;;
         n|N) 
-            askForOneTimeConnection
+            askForOneTimeCommand
             ;;
         *) 
             errorLog "Please answer with y (yes) or n (no)"
