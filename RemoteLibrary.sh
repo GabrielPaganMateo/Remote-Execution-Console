@@ -3,11 +3,19 @@ log() {
 }
 
 errorLog() {
-    echo "-> " "$1"
+    echo "-> $1"
 }
 
 askForInput() {
     read -p ":: $1 " input
+    echo "$input"
+}
+
+askForCommand() {
+    read -p ":: $1 " input
+
+    # hasUnmatchedQuotes
+
     echo "$input"
 }
 
@@ -18,16 +26,31 @@ askForCredentials() {
 
 # USE FOR CMD validation before executing SSH 
 # if has unmatched quotes then retry command input and log with recommendations
+# I have to study the read command better, what things does it take from the user input.
 # Maybe one of the following two logs
 # :: please be cautious when inputting commands, as best practice copy/paste the entire command at once
 # :: please be cautious when inputting commands with quotes, as best practice copy/paste the entire command at once
-# has_unmatched_quotes() {
-#     local s="$1"
-#     local dq=${s//[^"]/}
-#     local sq=${s//[^']/}
-
-#     (( ${#dq} % 2 != 0 || ${#sq} % 2 != 0 ))
-# }
+hasUnmatchedQuotes() {
+    local s="$@"
+    echo "$s"
+    for (( i = 0; i < ${#s}; i++ ))
+    do
+        ch=${s:i:1}
+        if [[ $ch == '"' ]]
+        then
+            echo "<-- double quote here"
+        elif [[ $ch == "'" ]]
+        then
+            echo "<-- single quote here"
+        elif [[ $ch == esc ]]
+        then
+            echo "<-- command line esc here"
+        else
+            test -z "$ch" && echo empty
+            test -n "$ch" && echo "$ch"
+        fi
+    done
+}
 
 TOOL_DIR="./plink.tool"
 
@@ -61,16 +84,36 @@ downloadPasswordConnectionTool() {
 #     rm -rf ./tmp.*
 # }
 
+handleConnectionExecutionFailure() {
+    if [ "$1" -ne 0 ]
+    then
+        echo
+        errorLog "Connection/Execution failed :"
+        errorLog "* Verify connection credentials"
+        errorLog "* Be cautious when typing command"
+        errorLog "* For best results copy/paste command"
+    fi
+}
+
 sshConnectAndExecute() {
     log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
     log "Executing : $1"
-    echo
 
-    test -n "$1" && [ ! -f "$1" ] && connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "$1")
-    test -n "$1" && [ -f "$1" ] && connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1")
-
-    echo
-    test -n "$connection_output" && log "Output > $connection_output"
+    if [[ -n "$1" && ! -f "$1" ]]
+    then
+        echo
+        connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "$1")
+        handleConnectionExecutionFailure "$?"
+    elif [[ -n "$1" && -f "$1" ]]
+    then
+        echo
+        connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1")
+        handleConnectionExecutionFailure "$?"
+    else
+        errorLog "Cannot execute, empty command input."
+    fi
+    
+    test -n "$connection_output" && echo && log "Output > $connection_output"
 }
 
 passwordConnectAndExecute() {
@@ -90,8 +133,7 @@ isPasswordBasedOrSSH() {
     SSH=$(askForInput "Do you have SSH key pair configured in remote server ? (y/n)")
     case $SSH in
         y|Y)
-            #CMD=$(askForInput "Input the desired command or path to script : ")
-            # sshConnectAndExecute "$CMD"
+            # Do Nothing
             ;;
         n|N)
             PASS=$(askForInput "Please provide password : ")
@@ -111,7 +153,7 @@ askForOneTimeCommand() {
         y|Y) 
             askForCredentials
             isPasswordBasedOrSSH
-            CMD=$(askForInput "Input the desired command or path to script : ")
+            CMD=$(askForCommand "Input the desired command or path to script : ")
             test -z "$PASS" && sshConnectAndExecute "$CMD"
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
             ;;
