@@ -1,0 +1,7 @@
+log() {
+    printf ":: %s\n" "$1" 
+}
+
+errorLog() {
+    echo "-> $1"
+}

@@ -6,8 +6,13 @@ cd "$DIR"
 TODAY=$(date +"%Y-%m-%d")
 LOGFILE="rec.${TODAY}.log"
 
-echo "Executing"
+NOW=$(date +"%Y-%m-%d(%H:%M:%S)")
 
+echo "Remote Execution Console -> $NOW" >> ./logs/$LOGFILE
+
+source ./libs/log.lib
+source ./libs/input.lib
+source ./libs/connect.lib
 source ./RemoteLibrary.sh
 
 OPTIONS="h"

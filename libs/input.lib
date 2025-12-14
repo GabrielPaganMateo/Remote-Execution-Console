@@ -1,0 +1,9 @@
+askForInput() {
+    read -p ":: $1 " input
+    echo "$input"
+}
+
+askForCredentials() {
+    REMOTEHOST=$(askForInput "What is the remote host URL ?")
+    REMOTEUSER=$(askForInput "Who is the user ?")
+}
