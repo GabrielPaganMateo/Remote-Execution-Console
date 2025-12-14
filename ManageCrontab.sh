@@ -3,6 +3,11 @@
 DIR=$(dirname $0)
 cd "$DIR"
 
+TODAY=$(date +"%Y-%m-%d")
+LOGFILE="rec.${TODAY}.log"
+
+echo "Executing"
+
 source ./RemoteLibrary.sh
 
 OPTIONS="h"

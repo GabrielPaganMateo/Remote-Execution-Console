@@ -11,45 +11,9 @@ askForInput() {
     echo "$input"
 }
 
-askForCommand() {
-    read -p ":: $1 " input
-
-    # hasUnmatchedQuotes
-
-    echo "$input"
-}
-
 askForCredentials() {
     REMOTEHOST=$(askForInput "What is the remote host URL ?")
     REMOTEUSER=$(askForInput "Who is the user ?")
-}
-
-# USE FOR CMD validation before executing SSH 
-# if has unmatched quotes then retry command input and log with recommendations
-# I have to study the read command better, what things does it take from the user input.
-# Maybe one of the following two logs
-# :: please be cautious when inputting commands, as best practice copy/paste the entire command at once
-# :: please be cautious when inputting commands with quotes, as best practice copy/paste the entire command at once
-hasUnmatchedQuotes() {
-    local s="$@"
-    echo "$s"
-    for (( i = 0; i < ${#s}; i++ ))
-    do
-        ch=${s:i:1}
-        if [[ $ch == '"' ]]
-        then
-            echo "<-- double quote here"
-        elif [[ $ch == "'" ]]
-        then
-            echo "<-- single quote here"
-        elif [[ $ch == esc ]]
-        then
-            echo "<-- command line esc here"
-        else
-            test -z "$ch" && echo empty
-            test -n "$ch" && echo "$ch"
-        fi
-    done
 }
 
 TOOL_DIR="./plink.tool"
@@ -112,7 +76,7 @@ sshConnectAndExecute() {
     else
         errorLog "Cannot execute, empty command input."
     fi
-    
+
     test -n "$connection_output" && echo && log "Output > $connection_output"
 }
 
@@ -120,13 +84,22 @@ passwordConnectAndExecute() {
     downloadPasswordConnectionTool
     log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
     log "Executing : $2"
-    echo
-
-    test -n "$1" && [ ! -f "$2" ] && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2")
-    test -n "$1" && [ -f "$2" ] && connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2")
     
-    echo
-    test -n "$connection_output" && log "Output > $connection_output"
+    if [[ -n "$2" && ! -f "$2" ]]
+    then
+        echo
+        connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2")
+        handleConnectionExecutionFailure "$?"
+    elif [[ -n "$2" && -f "$2" ]]
+    then
+        echo
+        connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2")
+        handleConnectionExecutionFailure "$?"
+    else
+        errorLog "Cannot execute, empty command input."
+    fi
+
+    test -n "$connection_output" && echo && log "Output > $connection_output"
 }
 
 isPasswordBasedOrSSH() {
@@ -153,7 +126,7 @@ askForOneTimeCommand() {
         y|Y) 
             askForCredentials
             isPasswordBasedOrSSH
-            CMD=$(askForCommand "Input the desired command or path to script : ")
+            CMD=$(askForInput "Input the desired command or path to script : ")
             test -z "$PASS" && sshConnectAndExecute "$CMD"
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
             ;;
