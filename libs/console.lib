@@ -35,11 +35,7 @@ askForOneTimeCommand() {
     esac
 }
 
-createRemoteConfiguration() {
-    exit 0
-}
-
-createConfigurationOrEstablishConnection() {
+askCreateConfigurationOrEstablishConnection() {
     CREATE=$(askForInput "Would you like to create it? (y/n)")
     case $CREATE in
         y|Y) 
@@ -50,17 +46,15 @@ createConfigurationOrEstablishConnection() {
             ;;
         *) 
             errorLog "Please answer with y (yes) or n (no)"
-            createConfigurationOrEstablishConnection
+            askCreateConfigurationOrEstablishConnection
             ;;
     esac
 }
 
 checkRemoteConfiguration() {
-    # Check if configuration settings exist for remote directory
-    REMOTECONFIG="./.remote"
     if [ ! -f ".remote" ]
     then
         log "Remote server configuration file does not exist"
-        createConfigurationOrEstablishConnection
+        askCreateConfigurationOrEstablishConnection
     fi
 }

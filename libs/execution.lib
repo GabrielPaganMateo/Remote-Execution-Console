@@ -55,12 +55,17 @@ sshConnectAndExecute() {
     fi
 
     test -n "$connection_output" && echo && log "Output > $connection_output"
+    log "Execution finished."
 }
 
 passwordConnectAndExecute() {
     downloadPasswordConnectionTool
     log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
     log "Executing : $2"
+
+    if [[ -z "$1" ]]; then
+        errorLog "Cannot connect, empty password input"
+    fi
     
     if [[ -n "$2" && ! -f "$2" ]]
     then
@@ -77,4 +82,5 @@ passwordConnectAndExecute() {
     fi
 
     test -n "$connection_output" && echo && log "Output > $connection_output"
+    log "Execution finished."
 }
