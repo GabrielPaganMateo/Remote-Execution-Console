@@ -10,14 +10,13 @@ LOG=${LOGDIR}${LOGFILE}
 
 NOW=$(date +"%Y-%m-%d(%H:%M:%S)")
 
-echo "Remote Execution Console -> $NOW" >> $LOG
-
-REMOTECONFIG="./.remote"
+REMOTECONFIG="false"
 
 source ./libs/log.lib
 source ./libs/input.lib
 source ./libs/execution.lib
 source ./libs/console.lib
+source ./libs/remote.lib
 
 OPTIONS="h"
 
@@ -31,4 +30,9 @@ do
     esac
 done
 
-checkRemoteConfiguration
+connect() {
+    echo "Remote Execution Console -> $NOW" >> $LOG
+    checkRemoteConfiguration
+}
+
+connect

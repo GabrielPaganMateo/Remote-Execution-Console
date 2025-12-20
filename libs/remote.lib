@@ -1,4 +1,46 @@
+DEFAULT_IFS="$IFS"
 
-createRemoteConfiguration() {
-    touch ".remote"
+# getGroupList() {
+
+# }
+
+checkForRemoteFile() {
+    for file in .remote*
+    do
+        [ -f "$file" ] && logToFile "Found $file" && REMOTECONFIG="true"
+    done
+    logToFile "REMOTECONFIG -> $REMOTECONFIG"
+}
+
+checkForExistingRemoteGroup() {
+    [ -f "$1" ] && log "Group already exists $1. Please input another name" && askForRemoteGroupName
+}
+
+getConnectionList() {
+    logToFile $1
+    IFS='\n'
+    CONNECTION_LIST=($(< "$1"))
+    IFS="$DEFAULT_IFS"
+}
+# HAVE AN IDEA, GROUP CONNECTIONS BY SERVER FAMILIES
+createRemoteConfigurationFile() {
+    askForRemoteGroupName
+    touch $REMOTEFILE
+    while true
+    do
+        getConnectionList $REMOTEFILE
+        declare -i NUM
+        NUM="${#CONNECTION_LIST[@]}"
+        NUM+=1
+        askForCredentials
+        # MUST FIND A WAY TO ENUMERATE EACH CONNECTION, MAYBE A LIST AND CHECK IF CONNECTION ALREADY EXISTS BEFORE RE ADDING00
+        # THE FOLLOWING STRING IS FAILING TO ADD THE REMOTEUSER
+        echo "${NUM}>${REMOTEUSER}@${REMOTEHOST}" >> $REMOTEFILE
+        $(askForMoreConfigurations)
+        MORE=$?
+        if [ $MORE -eq 1 ]; then
+            break
+        fi
+    done
+    # EXECUTE THE CONSOLE
 }

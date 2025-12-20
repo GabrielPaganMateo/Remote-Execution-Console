@@ -5,3 +5,7 @@ log() {
 errorLog() {
     echo "-> $1" | tee -a $LOG
 }
+
+logToFile() {
+    echo "$1" >> $LOG
+}

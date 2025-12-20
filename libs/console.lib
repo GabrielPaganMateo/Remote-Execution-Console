@@ -39,7 +39,7 @@ askCreateConfigurationOrEstablishConnection() {
     CREATE=$(askForInput "Would you like to create it? (y/n)")
     case $CREATE in
         y|Y) 
-            createRemoteConfiguration
+            createRemoteConfigurationFile
             ;;
         n|N) 
             askForOneTimeCommand
@@ -51,10 +51,50 @@ askCreateConfigurationOrEstablishConnection() {
     esac
 }
 
+askForMoreConfigurations() {
+    MORE=$(askForInput "Would you like to add another remote connection? (y/n)")
+    case $MORE in
+        y|Y)
+            exit 0
+            ;;
+        n|N)
+            exit 1
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForMoreConfigurations
+            ;;
+    esac
+}
+
+console() {
+
+    log "The following remote groups are available:"
+
+    # getGroupList
+    for conn in ${GROUP_LIST[@]}; do
+        log "$conn"
+    done
+    log "What would you like to do ?"
+
+}
+
 checkRemoteConfiguration() {
-    if [ ! -f ".remote" ]
+    # MUST HANDLE IF THE FILE EXISTS BUT IS EMPTY.
+    checkForRemoteFile
+    if [ "$REMOTECONFIG" == "false" ]
     then
         log "Remote server configuration file does not exist"
         askCreateConfigurationOrEstablishConnection
+    # elif check if empty REMOTECONFIG
+        #log "Remote server configuration file is empty"
+        #askCreateConfigurationOrEstablishConnection
+    # elif check if REMOTECONFIG has appropriate format
+        #log "Remote server configuration file has invalid format"
+        # make backup of existing .remote file and then ask user to generate a new one.
+    else
+        # THIS IS JUST FOR TEST LATER, THE CONSOLE MUST BE DISPLAYED
+        # WITH ALL AVAILABLE CONNECTIONS AND OPTIONS
+        console
     fi
 }

@@ -7,3 +7,10 @@ askForCredentials() {
     REMOTEHOST=$(askForInput "What is the remote host URL ?")
     REMOTEUSER=$(askForInput "Who is the user ?")
 }
+
+askForRemoteGroupName() {
+    log "To what group will the following connections belong to ?"
+    REMOTENAME=$(askForInput "Input name : ")
+    REMOTEFILE=".remote($REMOTENAME)"
+    checkForExistingRemoteGroup $REMOTEFILE
+}
