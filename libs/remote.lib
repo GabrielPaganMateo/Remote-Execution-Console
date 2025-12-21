@@ -46,7 +46,7 @@ createRemoteConfigurationFile() {
         askForCredentials
         # MUST FIND A WAY TO ENUMERATE EACH CONNECTION, MAYBE A LIST AND CHECK IF CONNECTION ALREADY EXISTS BEFORE RE ADDING00
         # THE FOLLOWING STRING IS FAILING TO ADD THE REMOTEUSER
-        echo "${NUM}>${REMOTEUSER}@${REMOTEHOST}" >> "$REMOTEFILE"
+        echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
         $(askForMoreConfigurations)
         MORE=$?
         if [ $MORE -eq 1 ]; then

@@ -18,4 +18,5 @@ echo " _____  ______ _____
 | | \ \| |___| |____ 
 |_|  \_\______\_____|                                        
 "
+log "[ REC ] Remote Execution Console"
 }

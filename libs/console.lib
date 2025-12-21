@@ -33,10 +33,10 @@ isPasswordBasedOrSSH() {
 }
 
 askForOneTimeCommand() {
-    ONCE=$(askForInput "Would you like to execute a one time command? (y/n)")
+    ONCE=$(askForInput "Would you like to make a one time connection? (y/n)")
     case $ONCE in
         y|Y) 
-            askForCredentials
+            askForOneTimeCredentials
             isPasswordBasedOrSSH
             CMD=$(askForInput "Input the desired command or path to script : ")
             test -z "$PASS" && sshConnectAndExecute "$CMD"
@@ -58,6 +58,7 @@ askCreateConfigurationOrEstablishConnection() {
     case $CREATE in
         y|Y) 
             createRemoteConfigurationFile
+            console
             ;;
         n|N) 
             askForOneTimeCommand
@@ -88,7 +89,7 @@ askForMoreConfigurations() {
 displayGroupList() {
     IFS=
     for group in "${GROUP_LIST[@]}"; do
-        log "$group"
+        log " >> $group"
     done
     IFS=$DEFAULT_IFS
 }
@@ -97,19 +98,18 @@ displayConnectionList() {
     IFS=
     for conn in "${CONNECTION_LIST[@]}"
     do
-        log "$conn"
+        log " $conn"
     done
     IFS=$DEFAULT_IFS
 }
 
 console() {
-    printHeader
-    log "[ REC ] Remote Execution Console"
     log "The following remote server groups are available:"
     getGroupList
     displayGroupList
     askForRemoteGroupName
     getConnectionList "$REMOTEFILE"
+    log "The following ${REMOTEFILE:8:-1} connections are available:"
     displayConnectionList
 }
 

@@ -6,20 +6,31 @@ askForInput() {
 }
 
 askForCredentials() {
+    log "Let's configure a new remote connection "
+    REMOTEHOST=$(askForInput "What is the remote host URL ?")
+    REMOTEUSER=$(askForInput "Who is the user ?")
+}
+
+askForOneTimeCredentials() {
     REMOTEHOST=$(askForInput "What is the remote host URL ?")
     REMOTEUSER=$(askForInput "Who is the user ?")
 }
 
 askForNewRemoteGroupName() {
-    log "Assign the following connections to a group."
+    log "Assign a name to this new group of connections"
     REMOTENAME=$(askForInput "Group name : ")
     REMOTEFILE=".remote($REMOTENAME)"
     checkForExistingRemoteGroup "$REMOTEFILE"
 }
 
 askForRemoteGroupName() {
-    log "Select a group to view available connections, input the group name."
+    log "To view the available connections of a group, input a group name."
+    log "To create a new group, use a new name."
     REMOTENAME=$(askForInput "Group name : ")
     REMOTEFILE=".remote($REMOTENAME)"
     checkIfRemoteGroupExists "$REMOTEFILE"
+}
+
+askForConnections() {
+    exit 0
 }
