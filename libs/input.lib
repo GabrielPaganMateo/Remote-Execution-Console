@@ -19,7 +19,7 @@ askForOneTimeCredentials() {
 askForNewRemoteGroupName() {
     log "Assign a name to this new group of connections"
     REMOTENAME=$(askForInput "Group name : ")
-    REMOTEFILE=".remote($REMOTENAME)"
+    REMOTEFILE="${GROUPDIR}remote(${REMOTENAME})"
     checkForExistingRemoteGroup "$REMOTEFILE"
 }
 

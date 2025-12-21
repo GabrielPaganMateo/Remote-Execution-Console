@@ -2,19 +2,18 @@ DEFAULT_IFS="$IFS"
 
 getGroupList() {
     GROUP_LIST=()
-    for file in .remote*
+    for file in ${GROUPDIR}remote*
     do
-        GROUP="${file:8:-1}"
+        GROUP="${file:16:-1}"
         GROUP_LIST+=("$GROUP")
     done
 }
 
 checkForRemoteFile() {
-    for file in .remote*
+    for file in ${GROUPDIR}remote*
     do
         [ -f "$file" ] && logToFile "Found $file" && REMOTECONFIG="true"
     done
-    logToFile "REMOTECONFIG -> $REMOTECONFIG"
 }
 
 checkForExistingRemoteGroup() {
@@ -23,13 +22,14 @@ checkForExistingRemoteGroup() {
 
 checkIfRemoteGroupExists() {
     THEFILENAME=$1
-    ONLYNAME=${THEFILENAME:8:-1}
+    ONLYNAME=${THEFILENAME:16:-1}
     [ ! -f "$1" ] && errorLog "Group name '$ONLYNAME' was not found." && askToCreateNewGroup
+    # CHECK IF RemoteGroup file is empty and then ask to add connections.
 }
 
 getConnectionList() {
     logToFile $1
-    IFS='\n'
+    IFS=
     CONNECTION_LIST=($(< "$1"))
     IFS="$DEFAULT_IFS"
 }

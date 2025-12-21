@@ -7,9 +7,8 @@ TODAY=$(date +"%Y-%m-%d")
 LOGFILE="rec.${TODAY}.log"
 LOGDIR="./logs/"
 LOG=${LOGDIR}${LOGFILE}
-
+GROUPDIR="./groups/"
 NOW=$(date +"%Y-%m-%d(%H:%M:%S)")
-
 REMOTECONFIG="false"
 
 source ./libs/log.lib

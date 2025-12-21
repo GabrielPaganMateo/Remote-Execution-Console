@@ -109,7 +109,7 @@ console() {
     displayGroupList
     askForRemoteGroupName
     getConnectionList "$REMOTEFILE"
-    log "The following ${REMOTEFILE:8:-1} connections are available:"
+    log "The following ${REMOTEFILE:16:-1} connections are available:"
     displayConnectionList
 }
 
