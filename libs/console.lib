@@ -1,3 +1,21 @@
+askToCreateNewGroup() {
+    NEW=$(askForInput "Do you want to create a new server group ? (y/n)")
+    case $NEW in
+        y|Y)
+            createRemoteConfigurationFile
+            ;;
+        n|N)
+            log "Please, choose from one of the available groups:"
+            displayGroupList
+            askForRemoteGroupName
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askToCreateNewGroup
+            ;;
+    esac
+}
+
 isPasswordBasedOrSSH() {
     SSH=$(askForInput "Do you have SSH key pair configured in remote server ? (y/n)")
     case $SSH in
@@ -67,16 +85,32 @@ askForMoreConfigurations() {
     esac
 }
 
-console() {
+displayGroupList() {
+    IFS=
+    for group in "${GROUP_LIST[@]}"; do
+        log "$group"
+    done
+    IFS=$DEFAULT_IFS
+}
 
-    log "The following remote groups are available:"
-
-    # getGroupList
-    for conn in ${GROUP_LIST[@]}; do
+displayConnectionList() {
+    IFS=
+    for conn in "${CONNECTION_LIST[@]}"
+    do
         log "$conn"
     done
-    log "What would you like to do ?"
+    IFS=$DEFAULT_IFS
+}
 
+console() {
+    printHeader
+    log "[ REC ] Remote Execution Console"
+    log "The following remote server groups are available:"
+    getGroupList
+    displayGroupList
+    askForRemoteGroupName
+    getConnectionList "$REMOTEFILE"
+    displayConnectionList
 }
 
 checkRemoteConfiguration() {
@@ -84,7 +118,7 @@ checkRemoteConfiguration() {
     checkForRemoteFile
     if [ "$REMOTECONFIG" == "false" ]
     then
-        log "Remote server configuration file does not exist"
+        log "No remote server configuration files exist."
         askCreateConfigurationOrEstablishConnection
     # elif check if empty REMOTECONFIG
         #log "Remote server configuration file is empty"

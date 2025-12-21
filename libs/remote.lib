@@ -1,8 +1,13 @@
 DEFAULT_IFS="$IFS"
 
-# getGroupList() {
-
-# }
+getGroupList() {
+    GROUP_LIST=()
+    for file in .remote*
+    do
+        GROUP="${file:8:-1}"
+        GROUP_LIST+=("$GROUP")
+    done
+}
 
 checkForRemoteFile() {
     for file in .remote*
@@ -13,7 +18,13 @@ checkForRemoteFile() {
 }
 
 checkForExistingRemoteGroup() {
-    [ -f "$1" ] && log "Group already exists $1. Please input another name" && askForRemoteGroupName
+    [ -f "$1" ] && errorLog "Group already exists $1. Please input another name" && askForNewRemoteGroupName
+}
+
+checkIfRemoteGroupExists() {
+    THEFILENAME=$1
+    ONLYNAME=${THEFILENAME:8:-1}
+    [ ! -f "$1" ] && errorLog "Group name '$ONLYNAME' was not found." && askToCreateNewGroup
 }
 
 getConnectionList() {
@@ -22,20 +33,20 @@ getConnectionList() {
     CONNECTION_LIST=($(< "$1"))
     IFS="$DEFAULT_IFS"
 }
-# HAVE AN IDEA, GROUP CONNECTIONS BY SERVER FAMILIES
+
 createRemoteConfigurationFile() {
-    askForRemoteGroupName
-    touch $REMOTEFILE
+    askForNewRemoteGroupName
+    touch "$REMOTEFILE"
     while true
     do
-        getConnectionList $REMOTEFILE
+        getConnectionList "$REMOTEFILE"
         declare -i NUM
         NUM="${#CONNECTION_LIST[@]}"
         NUM+=1
         askForCredentials
         # MUST FIND A WAY TO ENUMERATE EACH CONNECTION, MAYBE A LIST AND CHECK IF CONNECTION ALREADY EXISTS BEFORE RE ADDING00
         # THE FOLLOWING STRING IS FAILING TO ADD THE REMOTEUSER
-        echo "${NUM}>${REMOTEUSER}@${REMOTEHOST}" >> $REMOTEFILE
+        echo "${NUM}>${REMOTEUSER}@${REMOTEHOST}" >> "$REMOTEFILE"
         $(askForMoreConfigurations)
         MORE=$?
         if [ $MORE -eq 1 ]; then
