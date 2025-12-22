@@ -1,3 +1,30 @@
+askForExecution() {
+    EXECUTION=$(askForInput "Execute a command or script with $1 connections ? (y/n)")
+    case $EXECUTION in
+        y|Y)
+            askForConnection
+            executeConnection
+            ;;
+        n|N)
+            ADD=$(askForMoreConfigurations)
+            if [ $? -eq 1 ]
+            then
+                log
+                console
+            else
+                addRemoteConfiguration
+                getConnectionList "$REMOTEFILE"
+                displayConnectionList
+                askForExecution "$1"
+            fi
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForExecution "$1"
+            ;;
+    esac
+}
+
 askToCreateNewGroup() {
     NEW=$(askForInput "Do you want to create a new server group ? (y/n)")
     case $NEW in
@@ -71,7 +98,7 @@ askCreateConfigurationOrEstablishConnection() {
 }
 
 askForMoreConfigurations() {
-    MORE=$(askForInput "Would you like to add another remote connection? (y/n)")
+    MORE=$(askForInput "Would you like to add another remote connection ? (y/n)")
     case $MORE in
         y|Y)
             exit 0
@@ -87,20 +114,24 @@ askForMoreConfigurations() {
 }
 
 displayGroupList() {
+    log
     IFS=
     for group in "${GROUP_LIST[@]}"; do
         log " >> $group"
     done
     IFS=$DEFAULT_IFS
+    log
 }
 
 displayConnectionList() {
-    IFS=
+    log
+    IFS=$'\n'
     for conn in "${CONNECTION_LIST[@]}"
     do
         log " $conn"
     done
     IFS=$DEFAULT_IFS
+    log
 }
 
 console() {
@@ -109,8 +140,9 @@ console() {
     displayGroupList
     askForRemoteGroupName
     getConnectionList "$REMOTEFILE"
-    log "The following ${REMOTEFILE:16:-1} connections are available:"
+    log "The following ${ONLYNAME} connections are available:"
     displayConnectionList
+    askForExecution "${ONLYNAME}"
 }
 
 checkRemoteConfiguration() {

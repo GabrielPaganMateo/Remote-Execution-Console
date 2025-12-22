@@ -1,5 +1,22 @@
 TOOL_DIR="./libs/.plink"
 
+executeConnection() {
+    if [ "$CONN_NUM" == "*" ]
+    then
+        # execute with loop using all from connection list
+        echo ALL
+    else
+        checkIfConnectionExists "$CONN_NUM"
+        getConnection "$CONN_NUM"
+        REMOTEUSER="${CONNECTION%@*}"
+        REMOTEHOST="${CONNECTION#*@}"
+        CMD=$(askForInput "Input the desired command or path to script : ")
+        sshConnectAndExecute "$CMD"
+        log
+        console
+    fi
+}
+
 downloadPasswordConnectionTool() {
     if [ ! -f "$TOOL_DIR/plink.exe" ]; then
         log "Installing PuTTY Link for password connection..."

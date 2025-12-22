@@ -1,5 +1,10 @@
 DEFAULT_IFS="$IFS"
 
+checkIfConnectionExists() {
+    grep "$1)" $REMOTEFILE >> "$LOG"
+    test "$?" -eq 1 && errorLog "The connection number $1 does not exist. Please use one of the number options available." && displayConnectionList && askForExecution "$ONLYNAME"
+}
+
 getGroupList() {
     GROUP_LIST=()
     for file in ${GROUPDIR}remote*
@@ -27,9 +32,16 @@ checkIfRemoteGroupExists() {
     # CHECK IF RemoteGroup file is empty and then ask to add connections.
 }
 
+getConnection() {
+    CONNECTION=$(grep "$1)" "$REMOTEFILE")
+    log "Execution set for $CONNECTION"
+    CONNECTION="${CONNECTION#*[}"
+    CONNECTION="${CONNECTION%]*}"
+}
+
 getConnectionList() {
     logToFile $1
-    IFS=
+    IFS=$'\n'
     CONNECTION_LIST=($(< "$1"))
     IFS="$DEFAULT_IFS"
 }
@@ -54,4 +66,23 @@ createRemoteConfigurationFile() {
         fi
     done
     # EXECUTE THE CONSOLE
+}
+
+addRemoteConfiguration() {
+    while true
+    do
+        getConnectionList "$REMOTEFILE"
+        declare -i NUM
+        NUM="${#CONNECTION_LIST[@]}"
+        NUM+=1
+        askForCredentials
+        # MUST FIND A WAY TO ENUMERATE EACH CONNECTION, MAYBE A LIST AND CHECK IF CONNECTION ALREADY EXISTS BEFORE RE ADDING00
+        # THE FOLLOWING STRING IS FAILING TO ADD THE REMOTEUSER
+        echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        $(askForMoreConfigurations)
+        MORE=$?
+        if [ $MORE -eq 1 ]; then
+            break
+        fi
+    done
 }
