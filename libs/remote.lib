@@ -32,11 +32,75 @@ checkIfRemoteGroupExists() {
     # CHECK IF RemoteGroup file is empty and then ask to add connections.
 }
 
+removeConnection() {
+    if [ "$1" == "*" ]
+    then
+        rm -f "$REMOTEFILE"
+        log "Removing server group $ONLYNAME and all its connections"
+    else
+        cp -p "$REMOTEFILE" "$REMOTEFILE.tmp"
+        rm -f "$REMOTEFILE"
+        declare -i REM_NUM
+        REM_NUM=0
+        FOUND=false
+        IFS=$'\n'
+        while read -r conn_line
+        do
+            if [[ "$conn_line" == "$1) ["*"]" ]]
+            then
+                REM_CONN="${conn_line#*[}"
+                REM_CONN="${REM_CONN%]*}"
+                FOUND=true
+            else
+                bracketed="${conn_line#*[}"
+                bracketed="[${bracketed%%]*}]"
+                REM_NUM+=1
+                echo "${REM_NUM}) ${bracketed}" >> "$REMOTEFILE"
+            fi
+        done < "${REMOTEFILE}.tmp"
+        IFS=$DEFAULT_IFS
+        rm -f "${REMOTEFILE}.tmp"
+        log "Removing connection $REM_CONN"
+    fi
+}
+
 getConnection() {
-    CONNECTION=$(grep "$1)" "$REMOTEFILE")
-    log "Execution set for $CONNECTION"
-    CONNECTION="${CONNECTION#*[}"
-    CONNECTION="${CONNECTION%]*}"
+    FOUND=false
+    IFS=$'\n'
+    while read -r conn_line
+    do
+        if [[ "$conn_line" == "$1) ["*"]" ]]
+        then
+            CONNECTION="$conn_line"
+            FOUND=true
+            break
+        fi
+    done < "$REMOTEFILE"
+    IFS=$DEFAULT_IFS
+
+    if [ "$FOUND" == "false" ]
+    then
+        errorLog "The connection number $1 does not exist. Please use one of the number options available." 
+        displayConnectionList
+        askForExecution "$ONLYNAME"
+    else
+        CONNECTION="${CONNECTION#*[}"
+        CONNECTION="${CONNECTION%]*}"
+        log "Using connection $CONNECTION"
+    fi
+}
+
+getAllConnections() {
+    ALL_CONNECTIONS=()
+    IFS=$'\n'
+    while read -r cl
+    do
+        cl="${cl#*[}"
+        cl="${cl%]*}"
+        log "Using connection $cl"
+        ALL_CONNECTIONS+=("$cl")
+    done < "$REMOTEFILE"
+    IFS=$DEFAULT_IFS
 }
 
 getConnectionList() {
@@ -56,8 +120,6 @@ createRemoteConfigurationFile() {
         NUM="${#CONNECTION_LIST[@]}"
         NUM+=1
         askForCredentials
-        # MUST FIND A WAY TO ENUMERATE EACH CONNECTION, MAYBE A LIST AND CHECK IF CONNECTION ALREADY EXISTS BEFORE RE ADDING00
-        # THE FOLLOWING STRING IS FAILING TO ADD THE REMOTEUSER
         echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
         $(askForMoreConfigurations)
         MORE=$?
@@ -65,7 +127,6 @@ createRemoteConfigurationFile() {
             break
         fi
     done
-    # EXECUTE THE CONSOLE
 }
 
 addRemoteConfiguration() {

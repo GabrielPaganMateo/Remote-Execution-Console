@@ -9,8 +9,19 @@ askForExecution() {
             ADD=$(askForMoreConfigurations)
             if [ $? -eq 1 ]
             then
-                log
-                console
+                REMOVE=$(askToRemoveConfigurations)
+                if [ $? -eq 0 ]
+                then
+                    askForRemoveConnection
+                    removeConnection "$CONN_REM_NUM"
+                    clear
+                    printHeader
+                    console
+                else
+                    clear
+                    printHeader
+                    console
+                fi
             else
                 addRemoteConfiguration
                 getConnectionList "$REMOTEFILE"
@@ -85,6 +96,8 @@ askCreateConfigurationOrEstablishConnection() {
     case $CREATE in
         y|Y) 
             createRemoteConfigurationFile
+            clear
+            printHeader
             console
             ;;
         n|N) 
@@ -93,6 +106,22 @@ askCreateConfigurationOrEstablishConnection() {
         *) 
             errorLog "Please answer with y (yes) or n (no)"
             askCreateConfigurationOrEstablishConnection
+            ;;
+    esac
+}
+
+askToRemoveConfigurations() {
+    MORE=$(askForInput "Would you like to remove a remote connection ? (y/n)")
+    case $MORE in
+        y|Y)
+            exit 0
+            ;;
+        n|N)
+            exit 1
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForMoreConfigurations
             ;;
     esac
 }

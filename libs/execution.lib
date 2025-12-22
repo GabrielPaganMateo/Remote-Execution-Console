@@ -1,18 +1,32 @@
 TOOL_DIR="./libs/.plink"
 
+executeAllConnections() {
+    for i_connect in "${ALL_CONNECTIONS[@]}"
+    do
+        REMOTEUSER="${i_connect%@*}"
+        REMOTEHOST="${i_connect#*@}"
+        sshConnectAndExecute "$CMD"
+    done
+}
+
 executeConnection() {
     if [ "$CONN_NUM" == "*" ]
     then
-        # execute with loop using all from connection list
-        echo ALL
+        getAllConnections
+        CMD=$(askForInput "Input a command or path to script for execution : ")
+        executeAllConnections
+        clear
+        printHeader
+        console
+
     else
-        checkIfConnectionExists "$CONN_NUM"
         getConnection "$CONN_NUM"
         REMOTEUSER="${CONNECTION%@*}"
         REMOTEHOST="${CONNECTION#*@}"
-        CMD=$(askForInput "Input the desired command or path to script : ")
+        CMD=$(askForInput "Input a command or path to script for execution : ")
         sshConnectAndExecute "$CMD"
-        log
+        clear
+        printHeader
         console
     fi
 }

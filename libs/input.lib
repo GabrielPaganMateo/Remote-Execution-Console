@@ -32,7 +32,13 @@ askForRemoteGroupName() {
 }
 
 askForConnection() {
-    log "Enter the above number of the $ONLYNAME connection you want to use."
-    log "If you want to use all, use * as input"
+    log "To select one, enter the index from the list of connections."
+    log "If you want to use all connections, use * as input"
     CONN_NUM=$(askForInput "Connection number :")
+}
+
+askForRemoveConnection() {
+    log "To remove a connection, enter the index from the list of connections."
+    log "If you want to the group and all its connections, use * as input"
+    CONN_REM_NUM=$(askForInput "Connection number :")
 }
