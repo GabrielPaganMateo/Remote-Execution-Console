@@ -36,7 +36,7 @@ removeConnection() {
     if [ "$1" == "*" ]
     then
         rm -f "$REMOTEFILE"
-        log "Removing server group $ONLYNAME and all its connections"
+        log "Removed server group $ONLYNAME and all its connections"
     else
         cp -p "$REMOTEFILE" "$REMOTEFILE.tmp"
         rm -f "$REMOTEFILE"
@@ -73,12 +73,14 @@ removeConnection() {
         IFS=$DEFAULT_IFS
         rm -f "${REMOTEFILE}.tmp"
         log
-        log "Removing connection $REM_CONN ..."
+        log "Removed -> $REM_CONN"
         log
-        $(askToRemoveConfigurations)
+        getConnectionList "$REMOTEFILE"
+        $(askToRemoveAnotherConfiguration)
         if [ "$?" == 0 ]
         then
             askForRemoveConnection
+            removeConnection "$CONN_REM_NUM"
         fi
     fi
 }
@@ -105,8 +107,16 @@ getConnection() {
     else
         CONNECTION="${CONNECTION#*[}"
         CONNECTION="${CONNECTION%]*}"
-        #PASSWORD=
-        log "Using connection $CONNECTION"
+        if [[ "$conn_line" == "$1) ["*"] <"*">" ]]
+        then
+            PASSWORD="$conn_line"
+            PASSWORD="${PASSWORD##*<}"
+            PASSWORD="${PASSWORD%%>*}"
+        else
+            PASSWORD=""
+        fi
+        log
+        log "Selected -> $CONNECTION"
     fi
 }
 
@@ -117,9 +127,9 @@ getAllConnections() {
     do
         cl="${cl#*[}"
         cl="${cl%]*}"
-        log "Using connection $cl"
+        log "Selected connection $cl"
         ALL_CONNECTIONS+=("$cl")
-        #ALL_PASSWORDS
+        #ALL_PASSWORDS+=
     done < "$REMOTEFILE"
     IFS=$DEFAULT_IFS
 }
@@ -144,7 +154,7 @@ createRemoteConfigurationFile() {
         PASS=""
         isPasswordBasedOrSSH
         log
-        log "Adding connection ${REMOTEUSER}@${REMOTEHOST} ..."
+        log "Added -> ${REMOTEUSER}@${REMOTEHOST}"
         log
         test -z "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
         test -n "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}] <$PASS>" >> "$REMOTEFILE"
@@ -167,7 +177,7 @@ addRemoteConfiguration() {
         PASS=""
         isPasswordBasedOrSSH
         log
-        log "Adding connection ${REMOTEUSER}@${REMOTEHOST} ..."
+        log "Added -> ${REMOTEUSER}@${REMOTEHOST}"
         log
         #if pass is not empty, then save to remotefile
         test -z "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"

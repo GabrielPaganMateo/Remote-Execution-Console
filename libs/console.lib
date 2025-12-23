@@ -2,6 +2,9 @@ askForExecution() {
     EXECUTION=$(askForInput "Execute a command or script with $1 connections ? (y/n)")
     case $EXECUTION in
         y|Y)
+            clear
+            log "Let's execute a remote connection !"
+            displayConnectionList
             askForConnection
             executeConnection
             ;;
@@ -15,12 +18,16 @@ askForExecution() {
                     askForRemoveConnection
                     removeConnection "$CONN_REM_NUM"
                     getConnectionList "$REMOTEFILE"
+                    clear
+                    log "The following ${ONLYNAME} connections are available:"
                     displayConnectionList
                     askForExecution "$1"
                 fi
             else
                 addRemoteConfiguration
                 getConnectionList "$REMOTEFILE"
+                clear
+                log "The following ${ONLYNAME} connections are available:"
                 displayConnectionList
                 askForExecution "$1"
             fi
@@ -122,6 +129,22 @@ askToRemoveConfigurations() {
     esac
 }
 
+askToRemoveAnotherConfiguration() {
+    MORE=$(askForInput "Would you like to remove another remote connection ? (y/n)")
+    case $MORE in
+        y|Y)
+            exit 0
+            ;;
+        n|N)
+            exit 1
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForMoreConfigurations
+            ;;
+    esac
+}
+
 askForMoreConfigurations() {
     MORE=$(askForInput "Would you like to add another remote connection ? (y/n)")
     case $MORE in
@@ -161,6 +184,7 @@ displayConnectionList() {
 }
 
 restartOrExit() {
+    log
     EXIT=$(askForInput "Press Return to restart session, input anything to exit.")
     if [[ -z "$EXIT" ]]; then
         clear

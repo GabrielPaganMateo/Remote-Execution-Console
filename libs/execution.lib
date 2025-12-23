@@ -13,14 +13,17 @@ executeConnection() {
     if [ "$CONN_NUM" == "*" ]
     then
         getAllConnections
+        log
         CMD=$(askForInput "Input a command or path to script for execution : ")
         executeAllConnections
     else
         getConnection "$CONN_NUM"
         REMOTEUSER="${CONNECTION%@*}"
         REMOTEHOST="${CONNECTION#*@}"
+        log
         CMD=$(askForInput "Input a command or path to script for execution : ")
-        sshConnectAndExecute "$CMD"
+        test -z "$PASSWORD" && sshConnectAndExecute "$CMD"
+        test -n "$PASSWORD" && passwordConnectAndExecute "$PASSWORD" "$CMD"
     fi
 }
 
@@ -68,14 +71,18 @@ sshConnectAndExecute() {
     then
         echo
         # connection_output=$(
+        echo "== Remote Shell =="
         ssh $REMOTEUSER@$REMOTEHOST "$1"
+        echo "=================="
         # )
         handleConnectionExecutionFailure "$?"
     elif [[ -n "$1" && -f "$1" ]]
     then
         echo
         # connection_output=$(
+        echo "== Remote Shell =="
         ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1"
+        echo "=================="
         # )
         handleConnectionExecutionFailure "$?"
     else
@@ -83,6 +90,7 @@ sshConnectAndExecute() {
     fi
 
     #test -n "$connection_output" && echo && log "Output > $connection_output"
+    echo
     log "Execution finished."
 }
 
@@ -98,17 +106,26 @@ passwordConnectAndExecute() {
     if [[ -n "$2" && ! -f "$2" ]]
     then
         echo
-        connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2")
+        # connection_output=$(
+         echo "== Remote Shell =="
+        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2"
+         echo "=================="
+        # )
         handleConnectionExecutionFailure "$?"
     elif [[ -n "$2" && -f "$2" ]]
     then
         echo
-        connection_output=$("$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2")
+        # connection_output=$(
+         echo "== Remote Shell =="
+        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2"
+         echo "=================="
+        # )
         handleConnectionExecutionFailure "$?"
     else
         errorLog "Cannot execute, empty command input."
     fi
 
-    test -n "$connection_output" && echo && log "Output > $connection_output"
+    # test -n "$connection_output" && echo && log "Output > $connection_output"
+    echo
     log "Execution finished."
 }
