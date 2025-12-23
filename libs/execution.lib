@@ -15,19 +15,12 @@ executeConnection() {
         getAllConnections
         CMD=$(askForInput "Input a command or path to script for execution : ")
         executeAllConnections
-        clear
-        printHeader
-        console
-
     else
         getConnection "$CONN_NUM"
         REMOTEUSER="${CONNECTION%@*}"
         REMOTEHOST="${CONNECTION#*@}"
         CMD=$(askForInput "Input a command or path to script for execution : ")
         sshConnectAndExecute "$CMD"
-        clear
-        printHeader
-        console
     fi
 }
 
@@ -74,18 +67,22 @@ sshConnectAndExecute() {
     if [[ -n "$1" && ! -f "$1" ]]
     then
         echo
-        connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "$1")
+        # connection_output=$(
+        ssh $REMOTEUSER@$REMOTEHOST "$1"
+        # )
         handleConnectionExecutionFailure "$?"
     elif [[ -n "$1" && -f "$1" ]]
     then
         echo
-        connection_output=$(ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1")
+        # connection_output=$(
+        ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1"
+        # )
         handleConnectionExecutionFailure "$?"
     else
         errorLog "Cannot execute, empty command input."
     fi
 
-    test -n "$connection_output" && echo && log "Output > $connection_output"
+    #test -n "$connection_output" && echo && log "Output > $connection_output"
     log "Execution finished."
 }
 

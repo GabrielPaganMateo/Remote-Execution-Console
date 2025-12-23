@@ -14,13 +14,9 @@ askForExecution() {
                 then
                     askForRemoveConnection
                     removeConnection "$CONN_REM_NUM"
-                    clear
-                    printHeader
-                    console
-                else
-                    clear
-                    printHeader
-                    console
+                    getConnectionList "$REMOTEFILE"
+                    displayConnectionList
+                    askForExecution "$1"
                 fi
             else
                 addRemoteConfiguration
@@ -157,13 +153,26 @@ displayConnectionList() {
     IFS=$'\n'
     for conn in "${CONNECTION_LIST[@]}"
     do
+        conn="${conn%]*}]"
         log " $conn"
     done
     IFS=$DEFAULT_IFS
     log
 }
 
+restartOrExit() {
+    EXIT=$(askForInput "Press Return to restart session, input anything to exit.")
+    if [[ -z "$EXIT" ]]; then
+        clear
+        console
+    else
+        exit 0
+    fi
+
+}
+
 console() {
+    printHeader
     log "The following remote server groups are available:"
     getGroupList
     displayGroupList
@@ -172,6 +181,7 @@ console() {
     log "The following ${ONLYNAME} connections are available:"
     displayConnectionList
     askForExecution "${ONLYNAME}"
+    restartOrExit
 }
 
 checkRemoteConfiguration() {

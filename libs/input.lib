@@ -39,6 +39,6 @@ askForConnection() {
 
 askForRemoveConnection() {
     log "To remove a connection, enter the index from the list of connections."
-    log "If you want to the group and all its connections, use * as input"
+    log "If you want to remove the group and all its connections, use * as input"
     CONN_REM_NUM=$(askForInput "Connection number :")
 }

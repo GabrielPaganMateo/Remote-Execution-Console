@@ -46,21 +46,40 @@ removeConnection() {
         IFS=$'\n'
         while read -r conn_line
         do
-            if [[ "$conn_line" == "$1) ["*"]" ]]
+            if [[ "$conn_line" == "$1) ["*"] <"*">" ]]
+            then
+                REM_CONN="${conn_line#*[}"
+                REM_CONN="${REM_CONN%]*}"
+                FOUND=true
+            elif [[ "$conn_line" == "$1) ["*"]" ]]
             then
                 REM_CONN="${conn_line#*[}"
                 REM_CONN="${REM_CONN%]*}"
                 FOUND=true
             else
+                REM_NUM+=1
                 bracketed="${conn_line#*[}"
                 bracketed="[${bracketed%%]*}]"
-                REM_NUM+=1
-                echo "${REM_NUM}) ${bracketed}" >> "$REMOTEFILE"
+                if [[ "$conn_line" == ""*"<"*">"*"" ]]
+                then
+                    angled="${conn_line#*<}"
+                    angled="<${angled%%>*}>"
+                    echo "${REM_NUM}) ${bracketed} ${angled}" >> "$REMOTEFILE"
+                else
+                    echo "${REM_NUM}) ${bracketed}" >> "$REMOTEFILE"
+                fi
             fi
         done < "${REMOTEFILE}.tmp"
         IFS=$DEFAULT_IFS
         rm -f "${REMOTEFILE}.tmp"
-        log "Removing connection $REM_CONN"
+        log
+        log "Removing connection $REM_CONN ..."
+        log
+        $(askToRemoveConfigurations)
+        if [ "$?" == 0 ]
+        then
+            askForRemoveConnection
+        fi
     fi
 }
 
@@ -69,7 +88,7 @@ getConnection() {
     IFS=$'\n'
     while read -r conn_line
     do
-        if [[ "$conn_line" == "$1) ["*"]" ]]
+        if [[ "$conn_line" == "$1) ["*"]"*"" ]]
         then
             CONNECTION="$conn_line"
             FOUND=true
@@ -86,6 +105,7 @@ getConnection() {
     else
         CONNECTION="${CONNECTION#*[}"
         CONNECTION="${CONNECTION%]*}"
+        #PASSWORD=
         log "Using connection $CONNECTION"
     fi
 }
@@ -99,6 +119,7 @@ getAllConnections() {
         cl="${cl%]*}"
         log "Using connection $cl"
         ALL_CONNECTIONS+=("$cl")
+        #ALL_PASSWORDS
     done < "$REMOTEFILE"
     IFS=$DEFAULT_IFS
 }
@@ -120,7 +141,13 @@ createRemoteConfigurationFile() {
         NUM="${#CONNECTION_LIST[@]}"
         NUM+=1
         askForCredentials
-        echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        PASS=""
+        isPasswordBasedOrSSH
+        log
+        log "Adding connection ${REMOTEUSER}@${REMOTEHOST} ..."
+        log
+        test -z "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        test -n "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}] <$PASS>" >> "$REMOTEFILE"
         $(askForMoreConfigurations)
         MORE=$?
         if [ $MORE -eq 1 ]; then
@@ -137,9 +164,14 @@ addRemoteConfiguration() {
         NUM="${#CONNECTION_LIST[@]}"
         NUM+=1
         askForCredentials
-        # MUST FIND A WAY TO ENUMERATE EACH CONNECTION, MAYBE A LIST AND CHECK IF CONNECTION ALREADY EXISTS BEFORE RE ADDING00
-        # THE FOLLOWING STRING IS FAILING TO ADD THE REMOTEUSER
-        echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        PASS=""
+        isPasswordBasedOrSSH
+        log
+        log "Adding connection ${REMOTEUSER}@${REMOTEHOST} ..."
+        log
+        #if pass is not empty, then save to remotefile
+        test -z "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        test -n "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}] <$PASS>" >> "$REMOTEFILE"
         $(askForMoreConfigurations)
         MORE=$?
         if [ $MORE -eq 1 ]; then

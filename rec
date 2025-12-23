@@ -30,7 +30,6 @@ do
 done
 
 connect() {
-    printHeader
     echo "Remote Execution Console -> $NOW" >> $LOG
     checkRemoteConfiguration
 }
