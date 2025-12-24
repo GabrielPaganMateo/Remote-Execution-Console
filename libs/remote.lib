@@ -37,6 +37,8 @@ removeConnection() {
     then
         rm -f "$REMOTEFILE"
         log "Removed server group $ONLYNAME and all its connections"
+        clear
+        console
     else
         cp -p "$REMOTEFILE" "$REMOTEFILE.tmp"
         rm -f "$REMOTEFILE"

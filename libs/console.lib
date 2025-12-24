@@ -3,7 +3,7 @@ askForExecution() {
     case $EXECUTION in
         y|Y)
             clear
-            log "Let's execute a remote connection !"
+            log "Let's execute a remote command in $1 !"
             displayConnectionList
             askForConnection
             executeConnection
@@ -100,7 +100,6 @@ askCreateConfigurationOrEstablishConnection() {
         y|Y) 
             createRemoteConfigurationFile
             clear
-            printHeader
             console
             ;;
         n|N) 
@@ -213,6 +212,7 @@ checkRemoteConfiguration() {
     checkForRemoteFile
     if [ "$REMOTECONFIG" == "false" ]
     then
+        printHeader
         log "No remote server configuration files exist."
         askCreateConfigurationOrEstablishConnection
     # elif check if empty REMOTECONFIG
