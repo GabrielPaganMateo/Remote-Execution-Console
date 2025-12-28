@@ -84,8 +84,14 @@ askForOneTimeCommand() {
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
             ;;
         n|N) 
-            log "Goodbye."
-            exit 0
+						if [ "$REMOTECONFIG" == "false" ]
+						then
+							log "Goodbye."
+	            exit 0
+						else
+							clear
+							console
+						fi
             ;;
         *) 
             errorLog "Please answer with y (yes) or n (no)"
