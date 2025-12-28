@@ -28,7 +28,14 @@ checkForExistingRemoteGroup() {
 checkIfRemoteGroupExists() {
     THEFILENAME=$1
     ONLYNAME=${THEFILENAME:16:-1}
-    [ ! -f "$1" ] && errorLog "Group name '$ONLYNAME' was not found." && askToCreateNewGroup
+		if [ -z "$ONLYNAME" ]
+		then
+			askForOneTimeCommand
+		elif [ ! -f "$1" ]
+		then
+			errorLog "Group name '$ONLYNAME' was not found."
+			askToCreateNewGroup
+		fi
     # CHECK IF RemoteGroup file is empty and then ask to add connections.
 }
 
