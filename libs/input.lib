@@ -27,6 +27,7 @@ askForNewRemoteGroupName() {
 askForRemoteGroupName() {
     log "To view the available connections of a group, input a group name."
     log "To create a new group, use a new name."
+		log "To use one time credentials, press enter.
     REMOTENAME=$(askForInput "Group name : ")
     REMOTEFILE="${GROUPDIR}remote($REMOTENAME)"
     checkIfRemoteGroupExists "$REMOTEFILE"
