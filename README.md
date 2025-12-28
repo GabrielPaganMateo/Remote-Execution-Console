@@ -31,9 +31,9 @@ A lightweight shell-based tool for managing and executing remote SSH commands ac
 
 ### Prerequisites
 
-- Unix/Linux shell
+- Unix/Linux shell (example: Git Bash)
 - `ssh` command-line tool
-- Optional: `curl`, `unzip` (for auto-downloading tools like PuTTY's `plink` on Windows environments)
+- `curl`, `unzip` (for auto-downloading tools like PuTTY's `plink` on Windows environments)
 
 ### Run the Console
 
