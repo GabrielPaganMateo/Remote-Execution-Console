@@ -72,7 +72,7 @@ sshConnectAndExecute() {
         echo
         # connection_output=$(
         echo "== Remote Shell =="
-        ssh $REMOTEUSER@$REMOTEHOST "$1"
+        ssh $REMOTEUSER@$REMOTEHOST "$1" 2>&1 | tee -a $LOG
         echo "=================="
         # )
         handleConnectionExecutionFailure "$?"
@@ -81,7 +81,7 @@ sshConnectAndExecute() {
         echo
         # connection_output=$(
         echo "== Remote Shell =="
-        ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1"
+        ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1" 2>&1 | tee -a $LOG
         echo "=================="
         # )
         handleConnectionExecutionFailure "$?"
@@ -108,7 +108,7 @@ passwordConnectAndExecute() {
         echo
         # connection_output=$(
          echo "== Remote Shell =="
-        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2"
+        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2" 2>&1 | tee -a $LOG
          echo "=================="
         # )
         handleConnectionExecutionFailure "$?"
@@ -117,7 +117,7 @@ passwordConnectAndExecute() {
         echo
         # connection_output=$(
          echo "== Remote Shell =="
-        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2"
+        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2" 2>&1 | tee -a $LOG
          echo "=================="
         # )
         handleConnectionExecutionFailure "$?"

@@ -74,6 +74,7 @@ isPasswordBasedOrSSH() {
 }
 
 askForOneTimeCommand() {
+    clear
     ONCE=$(askForInput "Would you like to make a one time connection? (y/n)")
     case $ONCE in
         y|Y) 
@@ -84,20 +85,26 @@ askForOneTimeCommand() {
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
             ;;
         n|N) 
-						if [ "$REMOTECONFIG" == "false" ]
-						then
-							log "Goodbye."
+			if [ "$REMOTECONFIG" == "false" ]
+			then
+				log "Goodbye."
 	            exit 0
-						else
-							clear
-							console
-						fi
+			else
+				clear
+				console
+			fi
             ;;
         *) 
             errorLog "Please answer with y (yes) or n (no)"
             askForOneTimeCommand
             ;;
     esac
+    if [ "$REMOTECONFIG" == "false" ]
+	then
+        checkRemoteConfiguration
+	else
+		restartOrExit
+	fi
 }
 
 askCreateConfigurationOrEstablishConnection() {

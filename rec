@@ -17,6 +17,8 @@ source ./libs/execution.lib
 source ./libs/console.lib
 source ./libs/remote.lib
 
+set -o pipefail
+
 OPTIONS="h"
 
 while getopts "$OPTIONS" option
