@@ -1,0 +1,131 @@
+TOOL_DIR="./libs/.plink"
+
+executeAllConnections() {
+    for i_connect in "${ALL_CONNECTIONS[@]}"
+    do
+        REMOTEUSER="${i_connect%@*}"
+        REMOTEHOST="${i_connect#*@}"
+        sshConnectAndExecute "$CMD"
+    done
+}
+
+executeConnection() {
+    if [ "$CONN_NUM" == "*" ]
+    then
+        getAllConnections
+        log
+        CMD=$(askForInput "Input a command or path to script for execution : ")
+        executeAllConnections
+    else
+        getConnection "$CONN_NUM"
+        REMOTEUSER="${CONNECTION%@*}"
+        REMOTEHOST="${CONNECTION#*@}"
+        log
+        CMD=$(askForInput "Input a command or path to script for execution : ")
+        test -z "$PASSWORD" && sshConnectAndExecute "$CMD"
+        test -n "$PASSWORD" && passwordConnectAndExecute "$PASSWORD" "$CMD"
+    fi
+}
+
+downloadPasswordConnectionTool() {
+    if [ ! -f "$TOOL_DIR/plink.exe" ]; then
+        log "Installing PuTTY Link for password connection..."
+        mkdir $TOOL_DIR
+
+        TOOL_URL="https://the.earth.li/~sgtatham/putty/latest/w64/putty.zip"
+        if command -v curl >/dev/null; then
+            curl -L -o $TOOL_DIR/putty.zip "$TOOL_URL"
+        elif command -v wget >/dev/null; then
+            wget "$TOOL_URL"
+        else
+            errorLog "Error: curl or wget required"
+            exit 1
+        fi
+
+        unzip -o $TOOL_DIR/putty.zip -d $TOOL_DIR >/dev/null
+
+        if [[ ! -f "$TOOL_DIR/plink.exe" ]]; then
+            errorLog "Failed to extract plink.exe"
+            exit 1
+        fi
+        echo -e "\n"
+    fi
+}
+
+handleConnectionExecutionFailure() {
+    if [ "$1" -ne 0 ]
+    then
+        echo
+        errorLog "Connection/Execution failed :"
+        errorLog "* Verify connection credentials"
+        errorLog "* Be cautious when typing command"
+        errorLog "* For best results copy/paste command"
+    fi
+}
+
+sshConnectAndExecute() {
+    log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
+    log "Executing : $1"
+
+    if [[ -n "$1" && ! -f "$1" ]]
+    then
+        echo
+        # connection_output=$(
+        echo "== Remote Shell =="
+        ssh $REMOTEUSER@$REMOTEHOST "$1" 2>&1 | tee -a $LOG
+        echo "=================="
+        # )
+        handleConnectionExecutionFailure "$?"
+    elif [[ -n "$1" && -f "$1" ]]
+    then
+        echo
+        # connection_output=$(
+        echo "== Remote Shell =="
+        ssh $REMOTEUSER@$REMOTEHOST "sh -s" < "$1" 2>&1 | tee -a $LOG
+        echo "=================="
+        # )
+        handleConnectionExecutionFailure "$?"
+    else
+        errorLog "Cannot execute, empty command input."
+    fi
+
+    #test -n "$connection_output" && echo && log "Output > $connection_output"
+    echo
+    log "Execution finished."
+}
+
+passwordConnectAndExecute() {
+    downloadPasswordConnectionTool
+    log "Connecting to ${REMOTEUSER}@${REMOTEHOST}"
+    log "Executing : $2"
+
+    if [[ -z "$1" ]]; then
+        errorLog "Cannot connect, empty password input"
+    fi
+    
+    if [[ -n "$2" && ! -f "$2" ]]
+    then
+        echo
+        # connection_output=$(
+         echo "== Remote Shell =="
+        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "$2" 2>&1 | tee -a $LOG
+         echo "=================="
+        # )
+        handleConnectionExecutionFailure "$?"
+    elif [[ -n "$2" && -f "$2" ]]
+    then
+        echo
+        # connection_output=$(
+         echo "== Remote Shell =="
+        "$TOOL_DIR"/PLINK.EXE -ssh -pw "$1" "$REMOTEUSER@$REMOTEHOST" "sh -s" < "$2" 2>&1 | tee -a $LOG
+         echo "=================="
+        # )
+        handleConnectionExecutionFailure "$?"
+    else
+        errorLog "Cannot execute, empty command input."
+    fi
+
+    # test -n "$connection_output" && echo && log "Output > $connection_output"
+    echo
+    log "Execution finished."
+}

@@ -1,0 +1,49 @@
+askForInput() {
+    IFS=
+    read -p ":: $1 " input
+    IFS=$DEFAULT_IFS
+    echo "$input"
+}
+
+askForCredentials() {
+    clear
+    log "Let's configure a new remote connection for $ONLYGROUPNAME !"
+    REMOTEHOST=$(askForInput "What is the remote host URL ?")
+    REMOTEUSER=$(askForInput "Who is the user ?")
+}
+
+askForOneTimeCredentials() {
+    REMOTEHOST=$(askForInput "What is the remote host URL ?")
+    REMOTEUSER=$(askForInput "Who is the user ?")
+}
+
+askForNewRemoteGroupName() {
+    log "Assign a name to this new group of connections"
+    REMOTENAME=$(askForInput "Group name : ")
+    REMOTEFILE="${GROUPDIR}remote(${REMOTENAME})"
+    checkForExistingRemoteGroup "$REMOTEFILE"
+}
+
+askForRemoteGroupName() {
+    log "To view the available connections of a group, input a group name."
+    log "To create a new group, use a new name."
+	log "To use one time credentials, press enter."
+    REMOTENAME=$(askForInput "Group name : ")
+    REMOTEFILE="${GROUPDIR}remote($REMOTENAME)"
+    checkIfRemoteGroupExists "$REMOTEFILE"
+}
+
+askForConnection() {
+    log "To select one connection, enter an index from the list."
+    log "If you want to use all connections, use * as input"
+    CONN_NUM=$(askForInput "Connection number :")
+}
+
+askForRemoveConnection() {
+    clear
+    log "Let's remove an existing connection from $ONLYNAME !"
+    displayConnectionList
+    log "To remove a single connection, enter an index from the list displayed."
+    log "If you want to remove the group and all its connections, use * as input"
+    CONN_REM_NUM=$(askForInput "Connection number :")
+}

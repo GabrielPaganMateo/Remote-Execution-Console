@@ -1,0 +1,22 @@
+log() {
+    printf ":: %s\n" "$1" | tee -a $LOG
+}
+
+errorLog() {
+    echo "-> $1" | tee -a $LOG
+}
+
+logToFile() {
+    echo "$1" >> $LOG
+}
+
+printHeader() {
+echo " _____  ______ _____ 
+|  __ \|  ____/ ____|
+| |__) | |__ | |     
+|  _  /|  __|| |     
+| | \ \| |___| |____ 
+|_|  \_\______\_____|                                        
+"
+log "[ REC ] Remote Execution Console"
+}

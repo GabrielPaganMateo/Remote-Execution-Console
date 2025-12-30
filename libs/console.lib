@@ -1,0 +1,242 @@
+askForExecution() {
+    EXECUTION=$(askForInput "Execute a command or script with $1 connections ? (y/n)")
+    case $EXECUTION in
+        y|Y)
+            clear
+            log "Let's execute a remote command in $1 !"
+            displayConnectionList
+            askForConnection
+            executeConnection
+            ;;
+        n|N)
+            ADD=$(askForMoreConfigurations)
+            if [ $? -eq 1 ]
+            then
+                REMOVE=$(askToRemoveConfigurations)
+                if [ $? -eq 0 ]
+                then
+                    askForRemoveConnection
+                    removeConnection "$CONN_REM_NUM"
+                    getConnectionList "$REMOTEFILE"
+                    clear
+                    log "The following ${ONLYNAME} connections are available:"
+                    displayConnectionList
+                    askForExecution "$1"
+                fi
+            else
+                addRemoteConfiguration
+                getConnectionList "$REMOTEFILE"
+                clear
+                log "The following ${ONLYNAME} connections are available:"
+                displayConnectionList
+                askForExecution "$1"
+            fi
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForExecution "$1"
+            ;;
+    esac
+}
+
+askToCreateNewGroup() {
+    NEW=$(askForInput "Do you want to create a new server group ? (y/n)")
+    case $NEW in
+        y|Y)
+            createRemoteConfigurationFile
+            ;;
+        n|N)
+            log "Please, choose from one of the available groups:"
+            displayGroupList
+            askForRemoteGroupName
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askToCreateNewGroup
+            ;;
+    esac
+}
+
+isPasswordBasedOrSSH() {
+    SSH=$(askForInput "Do you have SSH key pair configured in remote server ? (y/n)")
+    case $SSH in
+        y|Y)
+            # Do Nothing
+            ;;
+        n|N)
+            PASS=$(askForInput "Please provide password : ")
+            ;;
+        *) 
+            errorLog "Please answer with y (yes) or n (no)"
+            isPasswordBasedOrSSH
+            ;;
+    esac
+}
+
+askForOneTimeCommand() {
+    clear
+    ONCE=$(askForInput "Would you like to make a one time connection? (y/n)")
+    case $ONCE in
+        y|Y) 
+            askForOneTimeCredentials
+            isPasswordBasedOrSSH
+            CMD=$(askForInput "Input the desired command or path to script : ")
+            test -z "$PASS" && sshConnectAndExecute "$CMD"
+            test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
+            ;;
+        n|N) 
+			if [ "$REMOTECONFIG" == "false" ]
+			then
+				log "Goodbye."
+	            exit 0
+			else
+				clear
+				console
+			fi
+            ;;
+        *) 
+            errorLog "Please answer with y (yes) or n (no)"
+            askForOneTimeCommand
+            ;;
+    esac
+    if [ "$REMOTECONFIG" == "false" ]
+	then
+        checkRemoteConfiguration
+	else
+		restartOrExit
+	fi
+}
+
+askCreateConfigurationOrEstablishConnection() {
+    CREATE=$(askForInput "Would you like to create it? (y/n)")
+    case $CREATE in
+        y|Y) 
+            createRemoteConfigurationFile
+            clear
+            console
+            ;;
+        n|N) 
+            askForOneTimeCommand
+            ;;
+        *) 
+            errorLog "Please answer with y (yes) or n (no)"
+            askCreateConfigurationOrEstablishConnection
+            ;;
+    esac
+}
+
+askToRemoveConfigurations() {
+    MORE=$(askForInput "Would you like to remove a remote connection ? (y/n)")
+    case $MORE in
+        y|Y)
+            exit 0
+            ;;
+        n|N)
+            exit 1
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForMoreConfigurations
+            ;;
+    esac
+}
+
+askToRemoveAnotherConfiguration() {
+    MORE=$(askForInput "Would you like to remove another remote connection ? (y/n)")
+    case $MORE in
+        y|Y)
+            exit 0
+            ;;
+        n|N)
+            exit 1
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForMoreConfigurations
+            ;;
+    esac
+}
+
+askForMoreConfigurations() {
+    MORE=$(askForInput "Would you like to add another remote connection ? (y/n)")
+    case $MORE in
+        y|Y)
+            exit 0
+            ;;
+        n|N)
+            exit 1
+            ;;
+        *)
+            errorLog "Please answer with y (yes) or n (no)"
+            askForMoreConfigurations
+            ;;
+    esac
+}
+
+displayGroupList() {
+    log
+    IFS=
+    for group in "${GROUP_LIST[@]}"; do
+        log " >> $group"
+    done
+    IFS=$DEFAULT_IFS
+    log
+}
+
+displayConnectionList() {
+    log
+    IFS=$'\n'
+    for conn in "${CONNECTION_LIST[@]}"
+    do
+        conn="${conn%]*}]"
+        log " $conn"
+    done
+    IFS=$DEFAULT_IFS
+    log
+}
+
+restartOrExit() {
+    log
+    EXIT=$(askForInput "Press Return to restart session, input anything to exit.")
+    if [[ -z "$EXIT" ]]; then
+        clear
+        console
+    else
+        exit 0
+    fi
+
+}
+
+console() {
+    printHeader
+    log "The following remote server groups are available:"
+    getGroupList
+    displayGroupList
+    askForRemoteGroupName
+    getConnectionList "$REMOTEFILE"
+    log "The following ${ONLYNAME} connections are available:"
+    displayConnectionList
+    askForExecution "${ONLYNAME}"
+    restartOrExit
+}
+
+checkRemoteConfiguration() {
+    # MUST HANDLE IF THE FILE EXISTS BUT IS EMPTY.
+    checkForRemoteFile
+    if [ "$REMOTECONFIG" == "false" ]
+    then
+        printHeader
+        log "No remote server configuration files exist."
+        askCreateConfigurationOrEstablishConnection
+    # elif check if empty REMOTECONFIG
+        #log "Remote server configuration file is empty"
+        #askCreateConfigurationOrEstablishConnection
+    # elif check if REMOTECONFIG has appropriate format
+        #log "Remote server configuration file has invalid format"
+        # make backup of existing .remote file and then ask user to generate a new one.
+    else
+        # THIS IS JUST FOR TEST LATER, THE CONSOLE MUST BE DISPLAYED
+        # WITH ALL AVAILABLE CONNECTIONS AND OPTIONS
+        console
+    fi
+}

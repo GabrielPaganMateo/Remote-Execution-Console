@@ -1,0 +1,207 @@
+DEFAULT_IFS="$IFS"
+
+checkIfConnectionExists() {
+    grep "$1)" $REMOTEFILE >> "$LOG"
+    test "$?" -eq 1 && errorLog "The connection number $1 does not exist. Please use one of the number options available." && displayConnectionList && askForExecution "$ONLYNAME"
+}
+
+getGroupList() {
+    GROUP_LIST=()
+    for file in ${GROUPDIR}remote*
+    do
+        GROUP="${file:16:-1}"
+        GROUP_LIST+=("$GROUP")
+    done
+}
+
+checkForRemoteFile() {
+    for file in ${GROUPDIR}remote*
+    do
+        [ -f "$file" ] && logToFile "Found $file" && REMOTECONFIG="true"
+    done
+}
+
+checkForExistingRemoteGroup() {
+    [ -f "$1" ] && errorLog "Group already exists $1. Please input another name" && askForNewRemoteGroupName
+}
+
+getRemoteFileName() {
+    REMOTECONFIGFILENAME="$1"
+    ONLYGROUPNAME=${REMOTECONFIGFILENAME:16:-1}
+}
+
+checkIfRemoteGroupExists() {
+    THEFILENAME=$1
+    ONLYNAME=${THEFILENAME:16:-1}
+		if [ -z "$ONLYNAME" ]
+		then
+			askForOneTimeCommand
+		elif [ ! -f "$1" ]
+		then
+			errorLog "Group name '$ONLYNAME' was not found."
+			askToCreateNewGroup
+		fi
+    # CHECK IF RemoteGroup file is empty and then ask to add connections.
+}
+
+removeConnection() {
+    if [ "$1" == "*" ]
+    then
+        rm -f "$REMOTEFILE"
+        log "Removed server group $ONLYNAME and all its connections"
+        clear
+        console
+    else
+        cp -p "$REMOTEFILE" "$REMOTEFILE.tmp"
+        rm -f "$REMOTEFILE"
+        declare -i REM_NUM
+        REM_NUM=0
+        FOUND=false
+        IFS=$'\n'
+        while read -r conn_line
+        do
+            if [[ "$conn_line" == "$1) ["*"] <"*">" ]]
+            then
+                REM_CONN="${conn_line#*[}"
+                REM_CONN="${REM_CONN%]*}"
+                FOUND=true
+            elif [[ "$conn_line" == "$1) ["*"]" ]]
+            then
+                REM_CONN="${conn_line#*[}"
+                REM_CONN="${REM_CONN%]*}"
+                FOUND=true
+            else
+                REM_NUM+=1
+                bracketed="${conn_line#*[}"
+                bracketed="[${bracketed%%]*}]"
+                if [[ "$conn_line" == ""*"<"*">"*"" ]]
+                then
+                    angled="${conn_line#*<}"
+                    angled="<${angled%%>*}>"
+                    echo "${REM_NUM}) ${bracketed} ${angled}" >> "$REMOTEFILE"
+                else
+                    echo "${REM_NUM}) ${bracketed}" >> "$REMOTEFILE"
+                fi
+            fi
+        done < "${REMOTEFILE}.tmp"
+        IFS=$DEFAULT_IFS
+        rm -f "${REMOTEFILE}.tmp"
+        log
+        log "Removed -> $REM_CONN"
+        log
+        getConnectionList "$REMOTEFILE"
+        $(askToRemoveAnotherConfiguration)
+        if [ "$?" == 0 ]
+        then
+            askForRemoveConnection
+            removeConnection "$CONN_REM_NUM"
+        fi
+    fi
+}
+
+getConnection() {
+    FOUND=false
+    IFS=$'\n'
+    while read -r conn_line
+    do
+        if [[ "$conn_line" == "$1) ["*"]"*"" ]]
+        then
+            CONNECTION="$conn_line"
+            FOUND=true
+            break
+        fi
+    done < "$REMOTEFILE"
+    IFS=$DEFAULT_IFS
+
+    if [ "$FOUND" == "false" ]
+    then
+        errorLog "The connection number $1 does not exist. Please use one of the number options available." 
+        displayConnectionList
+        askForExecution "$ONLYNAME"
+    else
+        CONNECTION="${CONNECTION#*[}"
+        CONNECTION="${CONNECTION%]*}"
+        if [[ "$conn_line" == "$1) ["*"] <"*">" ]]
+        then
+            PASSWORD="$conn_line"
+            PASSWORD="${PASSWORD##*<}"
+            PASSWORD="${PASSWORD%%>*}"
+        else
+            PASSWORD=""
+        fi
+        log
+        log "Selected -> $CONNECTION"
+    fi
+}
+
+getAllConnections() {
+    ALL_CONNECTIONS=()
+    IFS=$'\n'
+    while read -r cl
+    do
+        cl="${cl#*[}"
+        cl="${cl%]*}"
+        log "Selected connection $cl"
+        ALL_CONNECTIONS+=("$cl")
+        #ALL_PASSWORDS+=
+    done < "$REMOTEFILE"
+    IFS=$DEFAULT_IFS
+}
+
+getConnectionList() {
+    logToFile $1
+    IFS=$'\n'
+    CONNECTION_LIST=($(< "$1"))
+    IFS="$DEFAULT_IFS"
+}
+
+createRemoteConfigurationFile() {
+    askForNewRemoteGroupName
+    touch "$REMOTEFILE"
+    while true
+    do
+        getConnectionList "$REMOTEFILE"
+        declare -i NUM
+        NUM="${#CONNECTION_LIST[@]}"
+        NUM+=
+        getRemoteFileName "$REMOTEFILE"
+        askForCredentials
+        PASS=""
+        isPasswordBasedOrSSH
+        log
+        log "Added -> ${REMOTEUSER}@${REMOTEHOST}"
+        log
+        test -z "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        test -n "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}] <$PASS>" >> "$REMOTEFILE"
+        $(askForMoreConfigurations)
+        MORE=$?
+        if [ $MORE -eq 1 ]; then
+            break
+        fi
+    done
+}
+
+addRemoteConfiguration() {
+    while true
+    do
+        getConnectionList "$REMOTEFILE"
+        declare -i NUM
+        NUM="${#CONNECTION_LIST[@]}"
+        NUM+=1
+        getRemoteFileName "$REMOTEFILE"
+        askForCredentials
+        PASS=""
+        isPasswordBasedOrSSH
+        log
+        log "Added -> ${REMOTEUSER}@${REMOTEHOST}"
+        log
+        #if pass is not empty, then save to remotefile
+        test -z "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}]" >> "$REMOTEFILE"
+        test -n "$PASS" && echo "${NUM}) [${REMOTEUSER}@${REMOTEHOST}] <$PASS>" >> "$REMOTEFILE"
+        $(askForMoreConfigurations)
+        MORE=$?
+        if [ $MORE -eq 1 ]; then
+            break
+        fi
+    done
+}

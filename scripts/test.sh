@@ -1,3 +1,3 @@
 #!/bin/sh
-echo "TEST FILE!"
+echo "Running test.sh!"
 mkdir testREC
