@@ -19,6 +19,9 @@ source ./libs/remote.lib
 
 set -o pipefail
 
+test -d "$LOGDIR" || mkdir "$LOGDIR"
+test -d "$GROUPDIR" || mkdir "$GROUPDIR"
+
 OPTIONS="h"
 
 while getopts "$OPTIONS" option
