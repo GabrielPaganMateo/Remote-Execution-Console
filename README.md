@@ -2,7 +2,7 @@
 
 ## Overview
 
-A lightweight shell-based tool for managing and executing remote SSH commands across grouped hosts with user interaction and logging.
+A simple shell-based tool for managing and executing remote SSH commands across grouped hosts.
 
 ---
 
