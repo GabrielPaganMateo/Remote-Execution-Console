@@ -21,8 +21,8 @@ A simple shell-based tool for managing and executing remote SSH commands across 
 ### Prerequisites
 
 - Unix/Linux shell (example: Git Bash)
-- `ssh` command-line tool
-- `curl`, `unzip` (for auto-downloading tools like PuTTY's `plink` on Windows environments)
+- `ssh`
+- `curl`, `unzip`
 
 ### Run the Console
 
@@ -31,6 +31,19 @@ chmod +x rec
 sh rec
 ```
 
+### Usage Flow
+
+Start remote execution console
+
+Assign or choose a connection group
+
+Add connection credentials (user@host)
+
+Choose whether to execute commands
+
+Enter command/script to run remotely
+
+Output and logs will be displayed and stored
 
 ---
 
@@ -44,9 +57,3 @@ sh rec
 | `input.lib` | Functions for prompting and receiving user inputs. |
 | `log.lib` | Logging utilities and ASCII header display. |
 | `remote.lib` | Utilities for managing remote host groups and configurations. |
-
-Choose whether to execute commands
-
-Enter command/script to run remotely
-
-Output and logs will be displayed and stored
