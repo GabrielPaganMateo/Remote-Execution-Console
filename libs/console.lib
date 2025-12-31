@@ -12,6 +12,7 @@ askForExecution() {
             ADD=$(askForMoreConfigurations)
             if [ $? -eq 1 ]
             then
+                getRemoteFileName "$REMOTEFILE"
                 REMOVE=$(askToRemoveConfigurations)
                 if [ $? -eq 0 ]
                 then
@@ -113,7 +114,7 @@ askCreateConfigurationOrEstablishConnection() {
         y|Y) 
             createRemoteConfigurationFile
             clear
-            console
+            checkRemoteConfiguration
             ;;
         n|N) 
             askForOneTimeCommand
@@ -126,7 +127,7 @@ askCreateConfigurationOrEstablishConnection() {
 }
 
 askToRemoveConfigurations() {
-    MORE=$(askForInput "Would you like to remove a remote connection ? (y/n)")
+    MORE=$(askForInput "Would you like to remove a remote connection or remove the whole "$ONLYGROUPNAME" group ? (y/n)")
     case $MORE in
         y|Y)
             exit 0
@@ -136,13 +137,13 @@ askToRemoveConfigurations() {
             ;;
         *)
             errorLog "Please answer with y (yes) or n (no)"
-            askForMoreConfigurations
+            askToRemoveConfigurations
             ;;
     esac
 }
 
 askToRemoveAnotherConfiguration() {
-    MORE=$(askForInput "Would you like to remove another remote connection ? (y/n)")
+    MORE=$(askForInput "Would you like to remove another remote connection or remove the whole "$ONLYGROUPNAME" group ? (y/n)")
     case $MORE in
         y|Y)
             exit 0
@@ -152,7 +153,7 @@ askToRemoveAnotherConfiguration() {
             ;;
         *)
             errorLog "Please answer with y (yes) or n (no)"
-            askForMoreConfigurations
+            askToRemoveAnotherConfiguration
             ;;
     esac
 }
@@ -200,7 +201,7 @@ restartOrExit() {
     EXIT=$(askForInput "Press Return to restart session, input anything to exit.")
     if [[ -z "$EXIT" ]]; then
         clear
-        console
+        checkRemoteConfiguration
     else
         exit 0
     fi

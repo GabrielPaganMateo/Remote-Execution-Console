@@ -15,6 +15,7 @@ getGroupList() {
 }
 
 checkForRemoteFile() {
+    REMOTECONFIG="false"
     for file in ${GROUPDIR}remote*
     do
         [ -f "$file" ] && logToFile "Found $file" && REMOTECONFIG="true"
@@ -45,12 +46,12 @@ checkIfRemoteGroupExists() {
 }
 
 removeConnection() {
+    getRemoteFileName "$REMOTEFILE"
     if [ "$1" == "*" ]
     then
         rm -f "$REMOTEFILE"
-        log "Removed server group $ONLYNAME and all its connections"
-        clear
-        console
+        log "Removed server group $ONLYGROUPNAME and all its connections"
+        restartOrExit
     else
         cp -p "$REMOTEFILE" "$REMOTEFILE.tmp"
         rm -f "$REMOTEFILE"
@@ -89,9 +90,16 @@ removeConnection() {
         log
         log "Removed -> $REM_CONN"
         log
-        getConnectionList "$REMOTEFILE"
-        $(askToRemoveAnotherConfiguration)
-        if [ "$?" == 0 ]
+        if [ -f "$REMOTEFILE" ]
+        then
+            getConnectionList "$REMOTEFILE"
+        else
+            log "Removed server group $ONLYGROUPNAME and all its connections"
+            restartOrExit
+        fi
+        ANOTHER=$(askToRemoveAnotherConfiguration)
+        proc_result="$?"
+        if [ "$proc_result" == 0 ]
         then
             askForRemoveConnection
             removeConnection "$CONN_REM_NUM"
@@ -163,7 +171,7 @@ createRemoteConfigurationFile() {
         getConnectionList "$REMOTEFILE"
         declare -i NUM
         NUM="${#CONNECTION_LIST[@]}"
-        NUM+=
+        NUM+=1
         getRemoteFileName "$REMOTEFILE"
         askForCredentials
         PASS=""
