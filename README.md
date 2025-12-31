@@ -1,5 +1,9 @@
 # Remote Execution Console (REC)
 
+--
+
+## Overview
+
 A lightweight shell-based tool for managing and executing remote SSH commands across grouped hosts with user interaction and logging.
 
 ---
@@ -11,19 +15,6 @@ A lightweight shell-based tool for managing and executing remote SSH commands ac
 - Interactive CLI-based input for credentials and commands
 - Logging of operations and error messages
 - Support for dynamic configuration of host groups
-
----
-
-## 📁 Project Structure
-
-| File | Description |
-|------|-------------|
-| `rec` | Main execution script. Entry point to the Remote Execution Console. |
-| `console.lib` | Handles user interaction, input routing, and control flow logic. |
-| `execution.lib` | Manages command/script execution across remote hosts via SSH. |
-| `input.lib` | Functions for prompting and receiving user inputs. |
-| `log.lib` | Logging utilities and ASCII header display. |
-| `remote.lib` | Utilities for managing remote host groups and configurations. |
 
 ---
 
@@ -39,15 +30,22 @@ A lightweight shell-based tool for managing and executing remote SSH commands ac
 
 ```bash
 chmod +x rec
-./rec
+sh rec
+```
 
-🛠️ Usage Flow
 
-Start ./rec
+---
 
-Assign or choose a connection group
+## 📁 Project Structure
 
-Add connection credentials (user@host)
+| File | Description |
+|------|-------------|
+| `rec` | Main execution script. Entry point to the Remote Execution Console. |
+| `console.lib` | Handles user interaction, input routing, and control flow logic. |
+| `execution.lib` | Manages command/script execution across remote hosts via SSH. |
+| `input.lib` | Functions for prompting and receiving user inputs. |
+| `log.lib` | Logging utilities and ASCII header display. |
+| `remote.lib` | Utilities for managing remote host groups and configurations. |
 
 Choose whether to execute commands
 
