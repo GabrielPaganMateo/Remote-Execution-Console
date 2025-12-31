@@ -41,7 +41,7 @@ askForConnection() {
 
 askForRemoveConnection() {
     clear
-    log "Let's remove an existing connection from $ONLYNAME !"
+    log "Let's remove an existing connection from $ONLYGROUPNAME !"
     displayConnectionList
     log "To remove a single connection, enter an index from the list displayed."
     log "If you want to remove the group and all its connections, use * as input"
