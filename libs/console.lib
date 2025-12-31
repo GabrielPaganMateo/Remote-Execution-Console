@@ -84,6 +84,7 @@ askForOneTimeCommand() {
             CMD=$(askForInput "Input the desired command or path to script : ")
             test -z "$PASS" && sshConnectAndExecute "$CMD"
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
+            restartOrExit
             ;;
         n|N) 
 			if [ "$REMOTECONFIG" == "false" ]
@@ -91,8 +92,7 @@ askForOneTimeCommand() {
 				log "Goodbye."
 	            exit 0
 			else
-				clear
-				console
+                restartOrExit
 			fi
             ;;
         *) 
@@ -100,12 +100,6 @@ askForOneTimeCommand() {
             askForOneTimeCommand
             ;;
     esac
-    if [ "$REMOTECONFIG" == "false" ]
-	then
-        checkRemoteConfiguration
-	else
-		restartOrExit
-	fi
 }
 
 askCreateConfigurationOrEstablishConnection() {
@@ -226,6 +220,7 @@ checkRemoteConfiguration() {
     checkForRemoteFile
     if [ "$REMOTECONFIG" == "false" ]
     then
+        clear
         printHeader
         log "No remote server configuration files exist."
         askCreateConfigurationOrEstablishConnection
@@ -238,6 +233,7 @@ checkRemoteConfiguration() {
     else
         # THIS IS JUST FOR TEST LATER, THE CONSOLE MUST BE DISPLAYED
         # WITH ALL AVAILABLE CONNECTIONS AND OPTIONS
+        clear
         console
     fi
 }
