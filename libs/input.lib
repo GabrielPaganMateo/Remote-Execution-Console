@@ -7,7 +7,7 @@ askForInput() {
 
 askForCredentials() {
     clear
-    log "Let's configure a new remote connection for $ONLYGROUPNAME !"
+    log "Let's configure a new remote connection for "$ONLYGROUPNAME" !"
     REMOTEHOST=$(askForInput "What is the remote host URL ?")
     REMOTEUSER=$(askForInput "Who is the user ?")
 }
@@ -41,7 +41,7 @@ askForConnection() {
 
 askForRemoveConnection() {
     clear
-    log "Let's remove an existing connection from $ONLYGROUPNAME !"
+    log "Let's remove an existing connection from "$ONLYGROUPNAME" !"
     displayConnectionList
     log "To remove a single connection, enter an index from the list displayed."
     log "If you want to remove the group and all its connections, use * as input"
