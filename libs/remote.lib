@@ -28,7 +28,7 @@ checkForExistingRemoteGroup() {
 
 getRemoteFileName() {
     REMOTECONFIGFILENAME="$1"
-    ONLYGROUPNAME=${REMOTECONFIGFILENAME:16:-1}
+    ONLYGROUPNAME="${REMOTECONFIGFILENAME:16:-1}"
 }
 
 checkIfRemoteGroupExists() {

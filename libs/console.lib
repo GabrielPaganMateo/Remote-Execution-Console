@@ -121,7 +121,7 @@ askCreateConfigurationOrEstablishConnection() {
 }
 
 askToRemoveConfigurations() {
-    MORE=$(askForInput "Would you like to remove a remote connection or remove the whole "$ONLYGROUPNAME" group ? (y/n)")
+    MORE=$(askForInput "Would you like to remove a remote connection or delete the $ONLYGROUPNAME group ? (y/n)")
     case $MORE in
         y|Y)
             exit 0
@@ -137,7 +137,7 @@ askToRemoveConfigurations() {
 }
 
 askToRemoveAnotherConfiguration() {
-    MORE=$(askForInput "Would you like to remove another remote connection or remove the whole "$ONLYGROUPNAME" group ? (y/n)")
+    MORE=$(askForInput "Would you like to remove another remote connection or delete the $ONLYGROUPNAME group ? (y/n)")
     case $MORE in
         y|Y)
             exit 0

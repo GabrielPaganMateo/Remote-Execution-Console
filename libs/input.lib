@@ -44,6 +44,6 @@ askForRemoveConnection() {
     log "Let's remove an existing connection from "$ONLYGROUPNAME" !"
     displayConnectionList
     log "To remove a single connection, enter an index from the list displayed."
-    log "If you want to remove the group and all its connections, use * as input"
+    log "If you want to delete the group and all its connections, use * as input"
     CONN_REM_NUM=$(askForInput "Connection number :")
 }
