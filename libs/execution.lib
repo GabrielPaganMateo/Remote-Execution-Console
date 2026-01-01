@@ -16,6 +16,7 @@ executeConnection() {
         log
         CMD=$(askForInput "Input a command or path to script for execution : ")
         executeAllConnections
+        CMD=""
     else
         getConnection "$CONN_NUM"
         REMOTEUSER="${CONNECTION%@*}"
@@ -25,6 +26,7 @@ executeConnection() {
         test -z "$PASSWORD" && sshConnectAndExecute "$CMD"
         test -n "$PASSWORD" && passwordConnectAndExecute "$PASSWORD" "$CMD"
         PASSWORD=""
+        CMD=""
     fi
 }
 
