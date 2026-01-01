@@ -63,6 +63,7 @@ isPasswordBasedOrSSH() {
     case $SSH in
         y|Y)
             # Do Nothing
+            PASS=""
             ;;
         n|N)
             PASS=$(askForInput "Please provide password : ")
@@ -84,6 +85,7 @@ askForOneTimeCommand() {
             CMD=$(askForInput "Input the desired command or path to script : ")
             test -z "$PASS" && sshConnectAndExecute "$CMD"
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
+            PASS=""
             restartOrExit
             ;;
         n|N) 

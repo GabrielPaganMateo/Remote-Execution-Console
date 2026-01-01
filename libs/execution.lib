@@ -24,6 +24,7 @@ executeConnection() {
         CMD=$(askForInput "Input a command or path to script for execution : ")
         test -z "$PASSWORD" && sshConnectAndExecute "$CMD"
         test -n "$PASSWORD" && passwordConnectAndExecute "$PASSWORD" "$CMD"
+        PASSWORD=""
     fi
 }
 
