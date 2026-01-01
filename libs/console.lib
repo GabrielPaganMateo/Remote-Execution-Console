@@ -86,6 +86,7 @@ askForOneTimeCommand() {
             test -z "$PASS" && sshConnectAndExecute "$CMD"
             test -n "$PASS" && passwordConnectAndExecute "$PASS" "$CMD"
             PASS=""
+            CMD=""
             restartOrExit
             ;;
         n|N) 
