@@ -47,9 +47,7 @@ askToCreateNewGroup() {
             createRemoteConfigurationFile
             ;;
         n|N)
-            log "Please, choose from one of the available groups:"
-            displayGroupList
-            askForRemoteGroupName
+            restartOrExit
             ;;
         *)
             errorLog "Please answer with y (yes) or n (no)"
