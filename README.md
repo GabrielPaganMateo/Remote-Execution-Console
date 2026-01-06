@@ -48,8 +48,8 @@ Assign or choose a connection group
 ```
 :: The following remote server groups are available:
 ::
-::  >> EC2 Servers
-::  >> GCE Servers
+::  >> Web Servers
+::  >> App Servers
 ::
 :: To view the available connections of a group, input a group name.
 :: To create a new group, use a new name.
