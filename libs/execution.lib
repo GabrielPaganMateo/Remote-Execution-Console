@@ -3,10 +3,21 @@ TOOL_DIR="./libs/.plink"
 executeAllConnections() {
     for i_connect in "${ALL_CONNECTIONS[@]}"
     do
-        REMOTEUSER="${i_connect%@*}"
-        REMOTEHOST="${i_connect#*@}"
-        sshConnectAndExecute "$CMD"
+        REMOTEUSERANDHOST="${i_connect##*[}"
+        REMOTEUSERANDHOST="${REMOTEUSERANDHOST%%]*}"
+        REMOTEUSER="${REMOTEUSERANDHOST%@*}"
+        REMOTEHOST="${REMOTEUSERANDHOST#*@}"
+        if [[ "$i_connect" == ""*") ["*"] <"*">" ]]
+        then
+            PASSWORD="${i_connect##*<}"
+            PASSWORD="${PASSWORD%%>*}"
+            test -n "$PASSWORD" && passwordConnectAndExecute "$PASSWORD" "$CMD"
+        else
+            test -z "$PASSWORD" && sshConnectAndExecute "$CMD"
+        fi
+        PASSWORD=""
     done
+    CMD=""
 }
 
 executeConnection() {

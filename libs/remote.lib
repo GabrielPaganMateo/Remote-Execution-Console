@@ -143,15 +143,29 @@ getConnection() {
 }
 
 getAllConnections() {
+    declare -A PASSWORD_LIST
     ALL_CONNECTIONS=()
     IFS=$'\n'
     while read -r cl
     do
-        cl="${cl#*[}"
-        cl="${cl%]*}"
-        log "Selected connection $cl"
+        cpcl="${cl#*[}"
+        cpcl="${cpcl%]*}"
+        log "Selected connection $cpcl"
         ALL_CONNECTIONS+=("$cl")
-        #ALL_PASSWORDS+=
+        # passk="${cl%%@*}"
+        # passk="${passk}-${cl##*@}"
+        # if [[ "$cl" == ""*") ["*"] <"*">" ]]
+        # then
+        #     A_PASSWORD="$cl"
+        #     A_PASSWORD="${A_PASSWORD##*<}"
+        #     A_PASSWORD="${A_PASSWORD%%>*}"
+        #     PASSWORD_NUM="${cl%%)*}"
+        #     PASSWORD_LIST["$passk"]="$A_PASSWORD"
+        #     echo "$passk"
+        #     echo "${PASSWORD_LIST["$passk"]}"
+        #     echo "$A_PASSWORD"
+        #     echo "$PASSWORD_NUM"
+        # fi
     done < "$REMOTEFILE"
     IFS=$DEFAULT_IFS
 }
