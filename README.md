@@ -73,9 +73,91 @@ Add connection credentials (user@host)
 
 Choose whether to execute commands
 
+```
+:: The following App Servers connections are available:
+::
+::  1) [dev@ec2-52-91-140-189.compute-1.amazonaws.com]
+::  2) [ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com]
+::
+:: Execute a command or script with App Servers connections ? (y/n) y
+```
+
 Enter command/script to run remotely
 
+```
+:: Let's execute a remote command in App Servers !
+::
+::  1) [dev@ec2-52-91-140-187.compute-1.amazonaws.com]
+::  2) [ec2-user@ec2-54-236-21-27.compute-1.amazonaws.com]
+::
+:: To select one connection, enter an index from the list.
+:: If you want to use all connections, use * as input
+:: Connection number : *
+:: Selected connection dev@ec2-52-91-140-189.compute-1.amazonaws.com
+:: Selected connection ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com
+::
+:: Input a command or path to script for execution :  echo Hello World!
+:: Connecting to dev@ec2-52-91-140-189.compute-1.amazonaws.com
+:: Executing : echo Hello World!
+
+== Remote Shell ==
+Access granted. Press Return to begin session.
+
+Hello World!
+==================
+
+:: Execution finished.
+:: Connecting to ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com
+:: Executing : echo Hello World!
+
+== Remote Shell ==
+Hello World!
+==================
+
+:: Execution finished.
+```
+
 Output and logs will be displayed and stored
+
+```
+Remote Execution Console -> 2026-01-06(15:03:45)
+Found ./groups/remote(App Servers)
+Found ./groups/remote(Web Servers)
+:: [ REC ] Remote Execution Console
+:: The following remote server groups are available:
+:: 
+::  >> App Servers
+::  >> Web Servers
+:: 
+:: To view the available connections of a group, input a group name.
+:: To create a new group, use a new name.
+:: To use one time credentials, press enter.
+./groups/remote(App
+:: The following App Servers connections are available:
+:: 
+::  1) [dev@ec2-52-91-140-189.compute-1.amazonaws.com]
+::  2) [ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com]
+:: 
+:: Let's execute a remote command in App Servers !
+:: 
+::  1) [dev@ec2-52-91-140-189.compute-1.amazonaws.com]
+::  2) [ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com]
+:: 
+:: To select one connection, enter an index from the list.
+:: If you want to use all connections, use * as input
+:: Selected connection dev@ec2-52-91-140-189.compute-1.amazonaws.com
+:: Selected connection ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com
+:: 
+:: Connecting to dev@ec2-52-91-140-189.compute-1.amazonaws.com
+:: Executing : echo Hello World!
+Hello World!
+:: Execution finished.
+:: Connecting to ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com
+:: Executing : echo Hello World!
+Hello World!
+:: Execution finished.
+:: 
+```
 
 ---
 
