@@ -60,7 +60,7 @@ Assign or choose a connection group
 Add connection credentials (user@host)
 
 ```
-:: Let's configure a new remote connection for App
+:: Let's configure a new remote connection for App Servers
 :: What is the remote host URL ? ec2-52-91-140-189.compute-1.amazonaws.com
 :: Who is the user ? dev
 :: Do you have SSH key pair configured in remote server ? (y/n) n
