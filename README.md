@@ -59,6 +59,18 @@ Assign or choose a connection group
 
 Add connection credentials (user@host)
 
+```
+:: Let's configure a new remote connection for App
+:: What is the remote host URL ? ec2-52-91-140-189.compute-1.amazonaws.com
+:: Who is the user ? myuser
+:: Do you have SSH key pair configured in remote server ? (y/n) n
+:: Please provide password :  ********
+::
+:: Added -> dev@ec2-52-91-140-189.compute-1.amazonaws.com
+::
+:: Would you like to add another remote connection ? (y/n) n
+```
+
 Choose whether to execute commands
 
 Enter command/script to run remotely
