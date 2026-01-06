@@ -34,16 +34,14 @@ A simple shell-based tool for managing and executing remote SSH commands across 
 - `ssh`
 - `curl`, `unzip`
 
-### Run the Console
+### Usage Flow
+
+Start remote execution console
 
 ```bash
 chmod +x rec
 sh rec
 ```
-
-### Usage Flow
-
-Start remote execution console
 
 Assign or choose a connection group
 
