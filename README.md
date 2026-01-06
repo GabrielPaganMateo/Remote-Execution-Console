@@ -1,5 +1,15 @@
 # Remote Execution Console (REC)
 
+```text
+ _____  ______ _____ 
+|  __ \|  ____/ ____|
+| |__) | |__ | |     
+|  _  /|  __|| |     
+| | \ \| |___| |____ 
+|_|  \_\______\_____|
+:: [ REC ] Remote Execution Console                              
+```
+
 ## Overview
 
 A simple shell-based tool for managing and executing remote SSH commands across grouped hosts.
@@ -36,6 +46,18 @@ sh rec
 Start remote execution console
 
 Assign or choose a connection group
+
+```
+:: The following remote server groups are available:
+::
+::  >> EC2 Servers
+::  >> GCE Servers
+::
+:: To view the available connections of a group, input a group name.
+:: To create a new group, use a new name.
+:: To use one time credentials, press enter.
+:: Group name :
+```
 
 Add connection credentials (user@host)
 
