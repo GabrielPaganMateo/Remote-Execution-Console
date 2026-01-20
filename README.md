@@ -82,7 +82,7 @@ Choose whether to execute commands
 :: Execute a command or script with App Servers connections ? (y/n) y
 ```
 
-Enter command/script to run remotely
+Enter command to run remotely
 
 ```
 :: Let's execute a remote command in App Servers !
@@ -112,6 +112,32 @@ Hello World!
 
 == Remote Shell ==
 Hello World!
+==================
+
+:: Execution finished.
+```
+
+Enter script to run remotely
+
+```
+:: Let's execute a remote command in App Servers !
+::
+::  1) [dev@ec2-52-91-140-187.compute-1.amazonaws.com]
+::  2) [ec2-user@ec2-54-236-21-27.compute-1.amazonaws.com]
+::
+:: To select one connection, enter an index from the list.
+:: If you want to use all connections, use * as input
+:: Connection number : 2
+:: Selected connection ec2-user@ec2-54-236-21-29.compute-1.amazonaws.com
+::
+:: Executing : scripts/file_transfer/deploy.sh
+
+== Remote Shell ==
+Starting !
+
+Deploying..
+
+Done.
 ==================
 
 :: Execution finished.
