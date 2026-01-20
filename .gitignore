@@ -1,4 +1,4 @@
 /groups/remote*
 /libs/.plink
 /logs/*.log
-/scripts/*
+/scripts/
